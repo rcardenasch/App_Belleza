@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+{% block title %}Beauty Studio - Landing Page{% endblock %}
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style>
+:root{
+  --primary:#d946ef;
+  --secondary:#fdf2f8;
+  --dark:#1f2937;
+}
+body{font-family:Segoe UI,Tahoma,sans-serif;}
+.navbar{backdrop-filter:blur(10px);}
+.hero{
+  min-height:100vh;
+  background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+  url('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1600&q=80');
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  align-items:center;
+  color:#fff;
+}
+.btn-main{
+  background:var(--primary);
+  border:none;
+  color:#fff;
+  border-radius:40px;
+  padding:14px 30px;
+}
+.section-title{
+  font-weight:700;
+  margin-bottom:40px;
+}
+.service-card,.testimonial,.pro-card{
+  border:none;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+.service-card img,.pro-card img{
+  height:260px;
+  object-fit:cover;
+}
+.stats{
+  background:var(--secondary);
+}
+.whatsapp{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  background:#25D366;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:30px;
+  text-decoration:none;
+  z-index:999;
+}
+footer{
+  background:#111827;
+  color:white;
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+<div class="container">
+<a class="navbar-brand fw-bold" href="#">Beauty Studio</a>
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<div class="collapse navbar-collapse" id="menu">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#servicios">Servicios</a></li>
+<li class="nav-item"><a class="nav-link" href="#resultados">Resultados</a></li>
+<li class="nav-item"><a class="nav-link" href="#profesionales">Especialistas</a></li>
+<li class="nav-item"><a class="nav-link" href="#testimonios">Opiniones</a></li>
+<li class="nav-item ms-2">
+<a class="btn btn-main" href="{{ url_for('reservas.nueva') }}">Reservar</a>
+</li>
+<li class="nav-item ms-2">
+<a class="btn btn-outline-dark" href="{{ url_for('admin.panel') }}">Panel Admin</a>
+</li>
+</ul>
+</div>
+</div>
+</nav>
+
+<section class="hero">
+<div class="container">
+<div class="row">
+<div class="col-lg-7">
+<h1 class="display-3 fw-bold">Transforma tu Mirada</h1>
+<p class="lead my-4">
+Especialistas en Microblading, Cejas HD, Laminado y Extensiones de Pestañas.
+</p>
+<a href="{{ url_for('reservas.nueva') }}" class="btn btn-main btn-lg">Reservar Ahora</a>
+<a href="#resultados" class="btn btn-outline-light btn-lg ms-2">Ver Resultados</a>
+</div>
+</div>
+</div>
+</section>
+
+<section class="stats py-5">
+<div class="container">
+<div class="row text-center">
+<div class="col-md-3"><h2>5000+</h2><p>Clientas</p></div>
+<div class="col-md-3"><h2>4.9★</h2><p>Calificación</p></div>
+<div class="col-md-3"><h2>8</h2><p>Años de experiencia</p></div>
+<div class="col-md-3"><h2>100%</h2><p>Satisfacción</p></div>
+</div>
+</div>
+</section>
+
+<section id="servicios" class="py-5">
+<div class="container">
+<h2 class="section-title text-center">Servicios Destacados</h2>
+<section id="servicios">
+
+<div class="row">
+
+{% for servicio in servicios %}
+
+<div class="col-lg-4">
+
+    <div class="card">
+
+        <img
+            src="{{ servicio.imagen_url }}">
+
+        <div class="card-body">
+
+            <h4>
+                {{ servicio.nombre }}
+            </h4>
+
+            <p>
+                {{ servicio.descripcion }}
+            </p>
+
+            <h5>
+                S/ {{ servicio.precio }}
+            </h5>
+
+            <a
+             href="{{ url_for('reservas.nueva') }}"
+             class="btn btn-dark">
+
+             Reservar
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</section>
+
+<div class="row g-4">
+
+<div class="col-md-4">
+<div class="card service-card">
+<img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80">
+<div class="card-body">
+<h4>Microblading</h4>
+<p>Cejas naturales y definidas.</p>
+<h5>S/250</h5>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card service-card">
+<img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=800&q=80">
+<div class="card-body">
+<h4>Pestañas</h4>
+<p>Volumen y elegancia.</p>
+<h5>S/120</h5>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card service-card">
+<img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80">
+<div class="card-body">
+<h4>Laminado</h4>
+<p>Acabado profesional.</p>
+<h5>S/100</h5>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<section id="resultados" class="py-5 bg-light">
+<div class="container">
+<h2 class="section-title text-center">Antes y Después</h2>
+<section id="resultados">
+
+{% for item in resultados %}
+
+<div class="before-after">
+
+    <div>
+
+        <img
+         src="{{ item.imagen_antes }}">
+    </div>
+
+    <div>
+
+        <img
+         src="{{ item.imagen_despues }}">
+    </div>
+
+</div>
+
+{% endfor %}
+
+</section>
+
+<div class="row g-4">
+<div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?1"></div>
+<div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?2"></div>
+<div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?3"></div>
+</div>
+</div>
+</section>
+
+<section id="profesionales" class="py-5">
+<div class="container">
+<h2 class="section-title text-center">Nuestras Especialistas</h2>
+<div class="row g-4">
+
+<div class="col-md-4">
+<div class="card pro-card">
+<img src="https://picsum.photos/500/500?4">
+<div class="card-body text-center">
+<h5>Ana Gómez</h5>
+<p>Especialista en Microblading</p>
+{% for profesional in profesionales %}
+
+<div class="card">
+
+    <img
+      src="{{ profesional.foto_url }}">
+
+    <h5>
+        {{ profesional.nombres }}
+    </h5>
+
+</div>
+
+{% endfor %}
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card pro-card">
+<img src="https://picsum.photos/500/500?5">
+<div class="card-body text-center">
+<h5>María Torres</h5>
+<p>Especialista en Pestañas</p>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card pro-card">
+<img src="https://picsum.photos/500/500?6">
+<div class="card-body text-center">
+<h5>Lucía Rojas</h5>
+<p>Especialista en Laminado</p>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<section id="testimonios" class="py-5 bg-light">
+<div class="container">
+<h2 class="section-title text-center">Lo que dicen nuestras clientas</h2>
+<div class="row g-4">
+
+<div class="col-md-4">
+<div class="testimonial p-4">
+<h5>★★★★★</h5>
+<p>Mis cejas quedaron perfectas. Excelente atención.</p>
+<strong>María R.</strong>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="testimonial p-4">
+<h5>★★★★★</h5>
+<p>Muy profesionales y resultados naturales.</p>
+<strong>Andrea P.</strong>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="testimonial p-4">
+<h5>★★★★★</h5>
+<p>Definitivamente volveré.</p>
+<strong>Carla M.</strong>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<section class="py-5 text-center">
+<div class="container">
+<h2 class="fw-bold">¿Lista para Realzar tu Belleza?</h2>
+<p class="lead">Agenda tu cita en menos de un minuto.</p>
+<a
+href="{{ url_for('reservas.nueva') }}"
+class="btn btn-lg btn-main">
+
+Reservar Ahora
+
+</a>
+</div>
+</section>
+
+<footer class="py-4 text-center">
+<div class="container">
+<p class="mb-0">© 2026 - Todos los derechos reservados</p>
+</div>
+</footer>
+
+<a class="whatsapp" href="https://wa.me/51999999999">
+<i class="fab fa-whatsapp"></i>
+</a>
+
+{% endblock %}

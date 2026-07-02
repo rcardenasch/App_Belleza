@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Servicios por profesional{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<div class="container">
+<a class="navbar-brand" href="{{ url_for('landing.inicio') }}">Beauty Studio</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarNav">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="{{ url_for('profesionales.horarios') }}">Horarios</a></li>
+<li class="nav-item"><a class="nav-link active" href="{{ url_for('profesionales.horarios_profesional') }}">Servicios por profesional</a></li>
+</ul>
+</div>
+</div>
+</nav>
+
+<div class="container py-5">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row gy-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4>Asignar servicio</h4>
+                    <form action="{{ url_for('profesionales.horarios_profesional') }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="action" value="add">
+                        <div class="mb-3">
+                            <label class="form-label">Profesional</label>
+                            <select name="profesional_id" class="form-select" required>
+                                <option value="">Seleccione especialista</option>
+                                {% for profesional in profesionales %}
+                                <option value="{{ profesional.id }}">{{ profesional.nombres }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Servicio</label>
+                            <select name="servicio_id" class="form-select" required>
+                                <option value="">Seleccione servicio</option>
+                                {% for servicio in servicios %}
+                                <option value="{{ servicio.id }}">{{ servicio.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-main">Asignar servicio</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4>Asignaciones actuales</h4>
+                    {% if profesionales %}
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Profesional</th>
+                                    <th>Servicios asignados</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for profesional in profesionales %}
+                                <tr>
+                                    <td>{{ profesional.nombres }}</td>
+                                    <td>
+                                        {% if profesional.servicios %}
+                                            <ul class="mb-0">
+                                            {% for servicio in profesional.servicios %}
+                                                <li>{{ servicio.nombre }}</li>
+                                            {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <span class="text-muted">No asignado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if profesional.servicios %}
+                                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#removeModal{{ profesional.id }}">Quitar</button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if profesional.servicios %}
+                                <tr>
+                                    <td colspan="3" class="p-0 border-0">
+                                        <div class="accordion" id="accordion{{ profesional.id }}">
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="heading{{ profesional.id }}">
+                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ profesional.id }}" aria-expanded="false" aria-controls="collapse{{ profesional.id }}">
+                                                        Ver servicios y quitar
+                                                    </button>
+                                                </h2>
+                                                <div id="collapse{{ profesional.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ profesional.id }}" data-bs-parent="#accordion{{ profesional.id }}">
+                                                    <div class="accordion-body">
+                                                        <ul class="list-group">
+                                                            {% for servicio in profesional.servicios %}
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                {{ servicio.nombre }}
+                                                                <form method="post" action="{{ url_for('profesionales.horarios_profesional') }}" class="m-0">
+                                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                                    <input type="hidden" name="action" value="remove">
+                                                                    <input type="hidden" name="profesional_id" value="{{ profesional.id }}">
+                                                                    <input type="hidden" name="servicio_id" value="{{ servicio.id }}">
+                                                                    <button class="btn btn-sm btn-outline-danger">Quitar</button>
+                                                                </form>
+                                                            </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <p>No hay profesionales activos.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

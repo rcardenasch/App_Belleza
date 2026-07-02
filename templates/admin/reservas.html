@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% block title %}Administración de Reservas{% endblock %}
+
+{% block body %}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+
+<div class="container-fluid py-4">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category,message in messages %}
+    <div class="alert alert-{{ category }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h3 class="fw-bold">
+                Administración de Reservas
+            </h3>
+
+            <p class="text-muted mb-0">
+                Gestión completa de citas
+            </p>
+
+        </div>
+
+        <a href="{{ url_for('admin.nueva_reserva') }}" class="btn btn-primary">
+
+            <i class="bi bi-plus-circle"></i>
+
+            Nueva Reserva
+
+        </a>
+
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="row mb-4 g-3">
+        <!-- Hoy -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="background-color: #fcf8f7;">
+                <div class="card-body d-flex align-items-center justify-content-between p-4">
+                    <div>
+                        <h6 class="text-muted fw-normal mb-1">Hoy</h6>
+                        <h2 class="mb-0 fw-bold" style="color: #4a3e3d;">{{ reservas|length }}</h2>
+                    </div>
+                    <div class="rounded-circle p-3" style="background-color: #f3e6e3; color: #b18276;">
+                        <i class="fas fa-calendar-day fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pendientes -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="background-color: #fffaf0;">
+                <div class="card-body d-flex align-items-center justify-content-between p-4">
+                    <div>
+                        <h6 class="text-muted fw-normal mb-1">Pendientes</h6>
+                        <h2 class="mb-0 fw-bold" style="color: #b37400;">
+                            {{ reservas|selectattr("estado.value","equalto","Pendiente Pago")|list|length }}
+                        </h2>
+                    </div>
+                    <div class="rounded-circle p-3" style="background-color: #fef0d5; color: #b37400;">
+                        <i class="fas fa-clock fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmadas -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="background-color: #f4fbf7;">
+                <div class="card-body d-flex align-items-center justify-content-between p-4">
+                    <div>
+                        <h6 class="text-muted fw-normal mb-1">Confirmadas</h6>
+                        <h2 class="mb-0 fw-bold" style="color: #1e6b43;">
+                            {{ reservas|selectattr("estado.value","equalto","Confirmada")|list|length }}
+                        </h2>
+                    </div>
+                    <div class="rounded-circle p-3" style="background-color: #d1f2e1; color: #1e6b43;">
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canceladas -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="background-color: #fff5f5;">
+                <div class="card-body d-flex align-items-center justify-content-between p-4">
+                    <div>
+                        <h6 class="text-muted fw-normal mb-1">Canceladas</h6>
+                        <h2 class="mb-0 fw-bold" style="color: #a94442;">
+                            {{ reservas|selectattr("estado.value","equalto","Cancelada")|list|length }}
+                        </h2>
+                    </div>
+                    <div class="rounded-circle p-3" style="background-color: #fbe3e3; color: #a94442;">
+                        <i class="fas fa-times-circle fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <table id="tablaReservas" class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Fecha</th>
+
+                        <th>Hora</th>
+
+                        <th>Cliente</th>
+
+                        <th>Servicio</th>
+
+                        <th>Profesional</th>
+
+                        <th>Estado</th>
+
+                        <th>Pago</th>
+
+                        <th width="250">
+                            Acciones
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for cita in reservas %}
+
+                    <tr>
+
+                        <td>
+
+                            {{ cita.id }}
+
+                        </td>
+
+                        <td>
+
+                            {{ cita.fecha_inicio_lima.strftime("%d/%m/%Y") }}
+
+                        </td>
+
+                        <td>
+
+                            {{ cita.fecha_inicio_lima.strftime("%H:%M") }}
+
+                        </td>
+
+                        <td>
+
+                            <strong>
+
+                                {{ cita.cliente.nombres }}
+
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            {{ cita.servicio.nombre }}
+
+                        </td>
+
+                        <td>
+
+                            {{ cita.profesional.nombres }}
+
+                        </td>
+
+                        <td>
+
+                            {% if cita.estado.value=="Pendiente Pago" %}
+
+                            <span class="badge bg-warning text-dark">
+
+                                {{ cita.estado.value }}
+
+                            </span>
+
+                            {% elif cita.estado.value=="Confirmada" %}
+
+                            <span class="badge bg-success">
+
+                                {{ cita.estado.value }}
+
+                            </span>
+
+                            {% elif cita.estado.value=="Cancelada" %}
+
+                            <span class="badge bg-danger">
+
+                                {{ cita.estado.value }}
+
+                            </span>
+
+                            {% elif cita.estado.value=="Reprogramada" %}
+
+                            <span class="badge bg-info">
+
+                                {{ cita.estado.value }}
+
+                            </span>
+
+                            {% elif cita.estado.value=="Finalizada" %}
+
+                            <span class="badge bg-primary">
+
+                                {{ cita.estado.value }}
+
+                            </span>
+
+                            {% else %}
+
+                            <span class="badge bg-secondary">
+
+                                {{ cita.estado.value }}
+
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if cita.pagos %}
+
+                            <span class="badge bg-success">
+
+                                Pagado
+
+                            </span>
+
+                            {% else %}
+
+                            <span class="badge bg-danger">
+
+                                Pendiente
+
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <a href="{{ url_for('admin.ver_reserva', cita_id=cita.id) }}"
+                                class="btn btn-sm btn-outline-primary">
+
+                                Ver
+
+                            </a>
+
+                            <a href="{{ url_for('admin.reprogramar_reserva', cita_id=cita.id) }}"
+                                class="btn btn-sm btn-outline-warning">
+
+                                Reprogramar
+
+                            </a>
+
+                            <a href="{{ url_for('admin.confirmar_pago', cita_id=cita.id) }}"
+                                class="btn btn-sm btn-outline-success">
+
+                                Pago
+
+                            </a>
+
+                            <a target="_blank"
+                                href="https://wa.me/{{ cita.cliente.telefono }}?text=Hola {{ cita.cliente.nombres }}, respecto a tu cita..."
+                                class="btn btn-sm btn-success">
+
+                                <i class="bi bi-whatsapp"></i>
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $("#tablaReservas").DataTable({
+
+            responsive: true,
+
+            pageLength: 10,
+
+            order: [[1, "desc"]],
+
+            language: {
+
+                url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json"
+
+            }
+
+        });
+
+    });
+
+</script>
+
+{% endblock %}

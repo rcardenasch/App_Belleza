@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Usuarios{% endblock %}
+{% block body %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-success">
+                <div class="card-body">
+                    <h2 class="card-title mb-3 text-success">¡Reserva confirmada!</h2>
+                    <p class="lead">Tu cita se ha registrado correctamente. Puedes enviar una captura de pantalla a tu WhatsApp para guardar los detalles.</p>
+
+                    <div class="mb-4">
+                        <h5>Detalles de la reserva</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Nombre:</strong> {{ nombre }}</li>
+                            <li class="list-group-item"><strong>Teléfono:</strong> {{ telefono }}</li>
+                            {% if email %}<li class="list-group-item"><strong>Correo:</strong> {{ email }}</li>{% endif %}
+                            <li class="list-group-item"><strong>Servicio:</strong> {{ servicio.nombre }}</li>
+                            <li class="list-group-item"><strong>Profesional:</strong> {{ profesional.nombres }}</li>
+                            <li class="list-group-item"><strong>Fecha:</strong> {{ fecha }}</li>
+                            <li class="list-group-item"><strong>Hora:</strong> {{ hora }}</li>
+                            <li class="list-group-item"><strong>Observaciones:</strong> {{ observacion or 'Ninguna' }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success btn-lg">
+                            Enviar confirmación por WhatsApp
+                        </a>
+                        <a href="{{ url_for('landing.inicio') }}" class="btn btn-secondary btn-lg">Volver al inicio</a>
+                    </div>
+
+                    <div class="mt-4 alert alert-info">
+                        <strong>Consejo:</strong> toma una captura de pantalla de esta página y envíala a tu WhatsApp para conservar tu reserva.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

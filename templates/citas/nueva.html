@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block title %}Reservar Cita{% endblock %}
+{% block body %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Reservar cita</h2>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form action="{{ url_for('reservas.nueva') }}" method="post">
+                        <input type="hidden" id="servicio_id" name="servicio_id" value="{{ servicio_id or '' }}">
+                        <input type="hidden" id="profesional_id" name="profesional_id" value="{{ profesional_id or '' }}">
+                        <input type="hidden" id="hora" name="hora" value="{{ hora or '' }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" name="nombre" class="form-control" value="{{ nombre or '' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control" value="{{ telefono or '' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Correo electrónico</label>
+                            <input type="email" name="email" class="form-control" value="{{ email or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Servicio</label>
+                            <div id="servicios-container" class="d-flex flex-wrap gap-2">
+                                {% for servicio in servicios %}
+                                    <button type="button" class="btn btn-outline-primary servicio-btn {% if servicio.id == servicio_id %}active{% endif %}" data-servicio="{{ servicio.id }}">
+                                        {{ servicio.nombre }}<br><small>S/ {{ servicio.precio }}</small>
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Profesional</label>
+                            <div id="profesionales-container" class="d-flex flex-wrap gap-2">
+                                {% for profesional in profesionales %}
+                                    <button type="button" class="btn btn-outline-primary profesional-btn {% if profesional.id == profesional_id %}active{% endif %}" data-profesional="{{ profesional.id }}">
+                                        {{ profesional.nombres }}
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha</label>
+                                <input id="fecha" type="date" name="fecha" class="form-control" value="{{ fecha or '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Horario disponible</label>
+                                <div id="horarios-container" class="d-flex flex-wrap gap-2">
+                                    <div class="text-muted">Selecciona servicio, profesional y fecha para ver horarios.</div>
+                                </div>
+                                <div id="horarios-mensaje" class="form-text text-muted">Toca un horario para seleccionar.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Observaciones</label>
+                            <textarea name="observacion" class="form-control" rows="3">{{ observacion or '' }}</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-main">Confirmar reserva</button>
+                        <a href="{{ url_for('landing.inicio') }}" class="btn btn-secondary ms-2">Volver</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const servicioInput = document.getElementById('servicio_id');
+const profesionalInput = document.getElementById('profesional_id');
+const horaInput = document.getElementById('hora');
+const fechaInput = document.getElementById('fecha');
+const mensaje = document.getElementById('horarios-mensaje');
+const serviciosContainer = document.getElementById('servicios-container');
+const profesionalesContainer = document.getElementById('profesionales-container');
+const horariosContainer = document.getElementById('horarios-container');
+
+const establecerBotonActivo = (container, selector) => {
+    container.querySelectorAll(selector).forEach(button => {
+        button.classList.remove('active');
+    });
+};
+
+const seleccionarServicio = (id) => {
+    servicioInput.value = id;
+    establecerBotonActivo(serviciosContainer, '.servicio-btn');
+    serviciosContainer.querySelector(`[data-servicio='${id}']`)?.classList.add('active');
+    actualizarHorarios();
+};
+
+const seleccionarProfesional = (id) => {
+    profesionalInput.value = id;
+    establecerBotonActivo(profesionalesContainer, '.profesional-btn');
+    profesionalesContainer.querySelector(`[data-profesional='${id}']`)?.classList.add('active');
+    actualizarHorarios();
+};
+
+const seleccionarHora = (value) => {
+    horaInput.value = value;
+    horariosContainer.querySelectorAll('.horario-btn').forEach(button => {
+        button.classList.remove('btn-primary');
+        button.classList.add('btn-outline-primary');
+    });
+    const button = horariosContainer.querySelector(`[data-hora='${value}']`);
+    if (button) {
+        button.classList.remove('btn-outline-primary');
+        button.classList.add('btn-primary');
+    }
+};
+
+const actualizarHorarios = () => {
+    const servicioId = servicioInput.value;
+    const profesionalId = profesionalInput.value;
+    const fecha = fechaInput.value;
+
+    horariosContainer.innerHTML = '';
+    mensaje.textContent = '';
+
+    if (!servicioId || !profesionalId || !fecha) {
+        horariosContainer.innerHTML = '<div class="text-muted">Selecciona servicio, profesional y fecha para ver horarios.</div>';
+        return;
+    }
+
+    mensaje.textContent = 'Cargando horarios...';
+
+    fetch(`{{ url_for('reservas.horarios_disponibles') }}?profesional_id=${profesionalId}&servicio_id=${servicioId}&fecha=${fecha}`)
+        .then(response => response.json())
+        .then(data => {
+            horariosContainer.innerHTML = '';
+            if (data.horarios && data.horarios.length) {
+                data.horarios.forEach(slot => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'btn btn-outline-primary horario-btn';
+                    button.dataset.hora = slot;
+                    button.innerText = slot;
+                    button.addEventListener('click', () => {
+                        seleccionarHora(slot);
+                    });
+                    horariosContainer.appendChild(button);
+                });
+                mensaje.textContent = 'Toca un horario para seleccionarlo.';
+                if (horaInput.value) {
+                    seleccionarHora(horaInput.value);
+                }
+            } else {
+                horariosContainer.innerHTML = '<div class="text-muted">No hay horarios disponibles para ese día.</div>';
+                mensaje.textContent = 'Elige otro día o profesional.';
+            }
+        })
+        .catch(() => {
+            horariosContainer.innerHTML = '<div class="text-muted">Error cargando horarios.</div>';
+            mensaje.textContent = 'Intenta de nuevo más tarde.';
+        });
+};
+
+serviciosContainer.querySelectorAll('.servicio-btn').forEach(button => {
+    button.addEventListener('click', () => seleccionarServicio(button.dataset.servicio));
+});
+profesionalesContainer.querySelectorAll('.profesional-btn').forEach(button => {
+    button.addEventListener('click', () => seleccionarProfesional(button.dataset.profesional));
+});
+fechaInput.addEventListener('change', actualizarHorarios);
+
+window.addEventListener('load', () => {
+    if (servicioInput.value && profesionalInput.value && fechaInput.value) {
+        actualizarHorarios();
+    }
+});
+</script>
+
+{% endblock %}

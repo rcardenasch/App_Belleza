@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - Bloqueos{% endblock %}
+
+{% block body %}
+
+<div class="container py-5">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h4 class="card-title">{% if bloqueo %}Editar bloqueo{% else %}Agregar bloqueo{% endif %}</h4>
+            <form action="{% if bloqueo %}{{ url_for('admin.editar_bloqueo', bloqueo_id=bloqueo.id) }}{% else %}{{ url_for('admin.bloqueos_admin') }}{% endif %}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Profesional</label>
+                        <select name="profesional_id" class="form-select" required>
+                            <option value="">Selecciona especialista</option>
+                            {% for profesional in profesionales %}
+                                <option value="{{ profesional.id }}" {% if bloqueo and profesional.id == bloqueo.profesional_id %}selected{% endif %}>{{ profesional.nombres }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Inicio (fecha)</label>
+                        <input type="date" name="fecha_inicio_fecha" class="form-control" value="{{ bloqueo.fecha_inicio_lima.date() if bloqueo else '' }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Inicio (hora)</label>
+                        <input type="time" name="fecha_inicio_hora" class="form-control" value="{{ bloqueo.fecha_inicio_lima.strftime('%H:%M') if bloqueo else '' }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fin (fecha)</label>
+                        <input type="date" name="fecha_fin_fecha" class="form-control" value="{{ bloqueo.fecha_fin_lima.date() if bloqueo else '' }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fin (hora)</label>
+                        <input type="time" name="fecha_fin_hora" class="form-control" value="{{ bloqueo.fecha_fin_lima.strftime('%H:%M') if bloqueo else '' }}" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Motivo</label>
+                        <input type="text" name="motivo" class="form-control" value="{{ bloqueo.motivo if bloqueo else '' }}">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-main">{% if bloqueo %}Actualizar{% else %}Guardar{% endif %}</button>
+                    {% if bloqueo %}
+                    <a href="{{ url_for('admin.bloqueos_admin') }}" class="btn btn-secondary ms-2">Cancelar</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title">Bloqueos actuales</h4>
+            {% if bloqueos %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Profesional</th>
+                            <th>Inicio Lima</th>
+                            <th>Fin Lima</th>
+                            <th>Motivo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in bloqueos %}
+                        <tr>
+                            <td>{{ item.profesional.nombres }}</td>
+                            <td>{{ item.fecha_inicio_lima.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ item.fecha_fin_lima.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ item.motivo or '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.editar_bloqueo', bloqueo_id=item.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <a href="{{ url_for('admin.eliminar_bloqueo', bloqueo_id=item.id) }}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>No hay bloqueos programados.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

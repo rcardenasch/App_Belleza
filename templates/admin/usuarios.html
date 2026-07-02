@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Usuarios{% endblock %}
+{% block body %}
+
+<div class="container py-5">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Usuarios</h4>
+        <button class="btn btn-main" data-bs-toggle="modal" data-bs-target="#nuevoUsuarioModal">Nuevo usuario</button>
+    </div>
+
+    {% if usuario %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Editar usuario</h5>
+        <form method="post" action="{{ url_for('admin.editar_usuario', usuario_id=usuario.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Usuario</label>
+              <input class="form-control" name="username" value="{{ usuario.username }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Rol</label>
+              <select class="form-select" name="rol">
+                <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>admin</option>
+                <option value="user" {% if usuario.rol == 'user' %}selected{% endif %}>user</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check mt-4 pt-2">
+                <input class="form-check-input" type="checkbox" name="activo" id="activo_edit" {% if usuario.activo %}checked{% endif %}>
+                <label class="form-check-label" for="activo_edit">Activo</label>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <button class="btn btn-success">Actualizar usuario</button>
+            <a href="{{ url_for('admin.usuarios_admin') }}" class="btn btn-secondary ms-2">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Modal Nuevo Usuario -->
+    <div class="modal fade" id="nuevoUsuarioModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Agregar usuario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <form method="post" action="{{ url_for('admin.nuevo_usuario') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Usuario</label>
+                <input class="form-control" name="username" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Contraseña</label>
+                <input type="password" class="form-control" name="password" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Rol</label>
+                <select class="form-select" name="rol">
+                  <option value="admin">admin</option>
+                  <option value="user" selected>user</option>
+                </select>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="activo" id="activo_new" checked>
+                <label class="form-check-label" for="activo_new">Activo</label>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button class="btn btn-main">Guardar</button>
+          </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        {% if usuarios %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Activo</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.rol }}</td>
+                        <td>{{ 'Sí' if u.activo else 'No' }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.editar_usuario', usuario_id=u.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                            <form method="post" action="{{ url_for('admin.eliminar_usuario', usuario_id=u.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar este usuario?');">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                              <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </form>
+                            <!-- Cambiar contraseña -->
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#passwordModal{{ u.id }}">Cambiar contraseña</button>
+
+                            <!-- Modal contraseña por usuario -->
+                            <div class="modal fade" id="passwordModal{{ u.id }}" tabindex="-1">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title">Cambiar contraseña - {{ u.username }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                  </div>
+                                  <form method="post" action="{{ url_for('admin.cambiar_password_usuario', usuario_id=u.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                  <div class="modal-body">
+                                    <div class="mb-3">
+                                      <label class="form-label">Nueva contraseña</label>
+                                      <input type="password" class="form-control" name="new_password" required>
+                                    </div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button class="btn btn-main">Guardar</button>
+                                  </div>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No hay usuarios.</p>
+        {% endif %}
+      </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{% endblock %}

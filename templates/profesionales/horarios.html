@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Horarios de Especialistas{% endblock %}
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<div class="container">
+<a class="navbar-brand" href="{{ url_for('landing.inicio') }}">Beauty Studio</a>
+</div>
+</nav>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4>Agregar horario</h4>
+                    <form action="{{ url_for('profesionales.horarios') }}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Especialista</label>
+                            <select name="profesional_id" class="form-select" required>
+                                <option value="">Selecciona</option>
+                                {% for profesional in profesionales %}
+                                    <option value="{{ profesional.id }}">{{ profesional.nombres }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Día de la semana</label>
+                            <select name="dia_semana" class="form-select" required>
+                                <option value="">Selecciona</option>
+                                {% for num, nombre in dia_semana.items() %}
+                                    <option value="{{ num }}">{{ nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hora inicio</label>
+                            <input type="time" name="hora_inicio" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hora fin</label>
+                            <input type="time" name="hora_fin" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Duración promedio (minutos)</label>
+                            <input type="number" name="duracion_promedio" class="form-control" min="15" max="480" step="5" value="60" required>
+                        </div>
+                        <button type="submit" class="btn btn-main">Guardar horario</button>
+                        <a href="{{ url_for('profesionales.horarios_profesional') }}" class="btn btn-link">Asignar servicio a profesional</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Horarios configurados</h4>
+                    {% if horarios %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Especialista</th>
+                                        <th>Día</th>
+                                        <th>Desde</th>
+                                        <th>Hasta</th>
+                                        <th>Duración</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for horario in horarios %}
+                                    <tr>
+                                        <td>{{ horario.profesional.nombres }}</td>
+                                        <td>{{ dia_semana[horario.dia_semana] }}</td>
+                                        <td>{{ horario.hora_inicio.strftime('%H:%M') }}</td>
+                                        <td>{{ horario.hora_fin.strftime('%H:%M') }}</td>
+                                        <td>{{ horario.duracion_promedio_minutos or 60 }} min</td>
+                                        <td>
+                                            <a href="{{ url_for('profesionales.eliminar_horario', horario_id=horario.id) }}" class="btn btn-sm btn-danger">Eliminar</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p>No hay horarios configurados.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

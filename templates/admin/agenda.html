@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Agenda{% endblock %}
+{% block extra_head %}
+<style>
+    .slot { margin:2px; padding:6px 8px; font-size:0.85rem; }
+</style>
+{% endblock %}
+{% block body %}
+
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Agenda - {{ fecha }}</h4>
+    <form class="row g-2" method="get" action="{{ url_for('admin.agenda_admin') }}">
+      <div class="col-auto">
+        <input type="date" name="fecha" class="form-control" value="{{ fecha }}">
+      </div>
+      <div class="col-auto">
+        <select name="profesional_id" class="form-select">
+          <option value="">Todos los profesionales</option>
+          {% for p in profesionales %}
+          <option value="{{ p.id }}">{{ p.nombres }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-main">Filtrar</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="mb-3">
+    <span class="badge bg-success">Disponible</span>
+    <span class="badge bg-warning text-dark">Reservado</span>
+    <span class="badge bg-danger">Bloqueado</span>
+    <span class="badge bg-dark">Fuera de disponibilidad</span>
+    <span class="badge bg-danger">Conflicto</span>
+    <span class="badge bg-info text-dark">Servicio no asignado</span>
+  </div>
+
+  {% for item in agenda %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ item.profesional.nombres }}</h5>
+        <div class="d-flex flex-wrap">
+          {% for s in item.slots %}
+            {% set cls = 'btn-secondary' %}
+            {% if s.status == 'available' %}
+              {% set cls = 'btn-success' %}
+            {% elif s.status == 'booked' %}
+              {% set cls = 'btn-warning text-dark' %}
+            {% elif s.status == 'blocked' %}
+              {% set cls = 'btn-danger' %}
+            {% elif s.status == 'conflict' %}
+              {% set cls = 'btn-danger' %}
+            {% elif s.status == 'service_conflict' %}
+              {% set cls = 'btn-info text-dark' %}
+            {% elif s.status == 'outside' %}
+              {% set cls = 'btn-dark' %}
+            {% endif %}
+            <button type="button" class="btn {{ cls }} slot" title="{{ s.note or '' }}">{{ s.start }}</button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{% endblock %}
