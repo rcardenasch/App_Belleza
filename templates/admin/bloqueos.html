@@ -5,13 +5,6 @@
 {% block body %}
 
 <div class="container py-5">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
 
     <div class="card shadow-sm mb-4">
         <div class="card-body">
@@ -49,12 +42,22 @@
                         <input type="text" name="motivo" class="form-control" value="{{ bloqueo.motivo if bloqueo else '' }}">
                     </div>
                 </div>
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-main">{% if bloqueo %}Actualizar{% else %}Guardar{% endif %}</button>
-                    {% if bloqueo %}
-                    <a href="{{ url_for('admin.bloqueos_admin') }}" class="btn btn-secondary ms-2">Cancelar</a>
-                    {% endif %}
-                </div>
+                        <!-- Contenedor alineado para los botones de acción -->
+                        <div class="d-flex flex-column flex-sm-row align-items-center gap-2 mt-4">
+                            <!-- Botón de Envío -->
+                            <button type="submit" class="btn btn-main">
+                                {% if bloqueo %}Actualizar{% else %}Guardar{% endif %}
+                            </button>
+
+                            <!-- Enlace con comportamiento y apariencia de Botón -->
+                            {% if bloqueo %}
+                            <a href="{{ url_for('admin.bloqueos_admin') }}" class="btn btn-secondary-custom">
+                                Cancelar
+                            </a>
+                            {% endif %}
+                        </div>
+
+
             </form>
         </div>
     </div>
@@ -64,14 +67,14 @@
             <h4 class="card-title">Bloqueos actuales</h4>
             {% if bloqueos %}
             <div class="table-responsive">
-                <table class="table table-striped align-middle">
+                <table class="table table-striped align-middle datatable">
                     <thead>
                         <tr>
                             <th>Profesional</th>
-                            <th>Inicio Lima</th>
-                            <th>Fin Lima</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
                             <th>Motivo</th>
-                            <th></th>
+                            <th>Acción</th>
                         </tr>
                     </thead>
                     <tbody>

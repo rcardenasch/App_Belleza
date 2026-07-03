@@ -382,17 +382,125 @@ body{
     font-weight:700;
 }
 
-.btn-main{
-    width:100%;
-    background:linear-gradient(
+/* Tu botón principal existente */
+.btn-main {
+    width: 100%;
+    background: linear-gradient(
         135deg,
         #ec4899,
         #d946ef
     );
-    color:#fff !important;
-    border:none;
+    color: #fff !important;
+    border: none;
 }
 
-.btn-main:hover{
-    color:#fff !important;
+.btn-main-2{
+  background:var(--secondary);
+  border:none;
+  color:#534bc5;
+  border-radius:40px;
+  padding:14px 30px;
+}
+
+.btn-main:hover {
+    color: #fff !important;
+    opacity: 0.9; /* Añadido un sutil efecto visual al pasar el mouse */
+}
+
+/* NUEVO: Estilo para botones secundarios */
+.btn-secondary-custom {
+    width: 100%;
+    background: #f3f4f6; /* Gris claro elegante */
+    color: #374151 !important; /* Texto oscuro para buen contraste */
+    border: 1px solid #e5e7eb; /* Borde suave */
+    transition: all 0.2s ease; /* Transición suave para el hover */
+}
+
+.btn-secondary-custom:hover {
+    background: #e5e7eb; /* Gris un poco más oscuro al pasar el mouse */
+    color: #1f2937 !important; /* Texto un poco más oscuro */
+}
+
+
+:root{
+  --primary:#d946ef;
+  --secondary:#fdf2f8;
+  --dark:#1f2937;
+}
+body{font-family:Segoe UI,Tahoma,sans-serif;}
+.navbar{backdrop-filter:blur(10px);}
+.hero{
+  min-height:100vh;
+  background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+  url('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1600&q=80');
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  align-items:center;
+  color:#fff;
+}
+
+.section-title{
+  font-weight:700;
+  margin-bottom:40px;
+}
+.service-card,.testimonial,.pro-card{
+  border:none;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+.service-card img,.pro-card img{
+  height:260px;
+  object-fit:cover;
+}
+.stats{
+  background:var(--secondary);
+}
+.whatsapp{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  background:#25D366;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:30px;
+  text-decoration:none;
+  z-index:999;
+}
+footer{
+  background:#111827;
+  color:white;
+}
+
+
+.alert{
+
+    animation: aparecer .4s ease;
+
+}
+
+@keyframes aparecer{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(-10px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
 }

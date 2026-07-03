@@ -12,7 +12,7 @@
     {% endwith %}
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Usuarios</h4>
+        <h3 class="fw-bold">Usuarios</h3>
         <button class="btn btn-main" data-bs-toggle="modal" data-bs-target="#nuevoUsuarioModal">Nuevo usuario</button>
     </div>
 
@@ -94,7 +94,7 @@
       <div class="card-body">
         {% if usuarios %}
         <div class="table-responsive">
-            <table class="table table-striped align-middle">
+            <table class="table table-striped align-middle datatable">
                 <thead>
                     <tr>
                         <th>Usuario</th>

@@ -3,56 +3,77 @@
 {% block body %}
 
 <div class="container py-5">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+
     <div class="row g-4">
         <div class="col-lg-4">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h4 class="card-title">{% if horario %}Editar horario{% else %}Agregar horario{% endif %}</h4>
-                    <form action="{% if horario %}{{ url_for('admin.editar_horario', horario_id=horario.id) }}{% else %}{{ url_for('admin.horarios_admin') }}{% endif %}" method="post">
+                    <h4 class="card-title mb-4">{% if horario %}Editar horario{% else %}Agregar horario{% endif %}</h4>
+                    <form
+                        action="{% if horario %}{{ url_for('admin.editar_horario', horario_id=horario.id) }}{% else %}{{ url_for('admin.horarios_admin') }}{% endif %}"
+                        method="post">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
                         <div class="mb-3">
                             <label class="form-label">Profesional</label>
                             <select name="profesional_id" class="form-select" required>
                                 <option value="">Seleccione especialista</option>
                                 {% for profesional in profesionales %}
-                                    <option value="{{ profesional.id }}" {% if horario and profesional.id == horario.profesional_id %}selected{% endif %}>{{ profesional.nombres }}</option>
+                                <option value="{{ profesional.id }}" {% if horario and
+                                    profesional.id==horario.profesional_id %}selected{% endif %}>{{ profesional.nombres
+                                    }}</option>
                                 {% endfor %}
                             </select>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Día de la semana</label>
                             <select name="dia_semana" class="form-select" required>
                                 <option value="">Seleccione día</option>
                                 {% for num, nombre in dia_semana.items() %}
-                                    <option value="{{ num }}" {% if horario and horario.dia_semana == num %}selected{% endif %}>{{ nombre }}</option>
+                                <option value="{{ num }}" {% if horario and horario.dia_semana==num %}selected{% endif
+                                    %}>{{ nombre }}</option>
                                 {% endfor %}
                             </select>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Hora inicio</label>
-                            <input type="time" name="hora_inicio" class="form-control" value="{{ horario.hora_inicio.strftime('%H:%M') if horario else '' }}" required>
+                            <input type="time" name="hora_inicio" class="form-control"
+                                value="{{ horario.hora_inicio.strftime('%H:%M') if horario else '' }}" required>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Hora fin</label>
-                            <input type="time" name="hora_fin" class="form-control" value="{{ horario.hora_fin.strftime('%H:%M') if horario else '' }}" required>
+                            <input type="time" name="hora_fin" class="form-control"
+                                value="{{ horario.hora_fin.strftime('%H:%M') if horario else '' }}" required>
                         </div>
-                        <div class="mb-3">
+
+                        <!-- Cierre correcto del contenedor de duración -->
+                        <div class="mb-4">
                             <label class="form-label">Duración promedio (minutos)</label>
-                            <input type="number" name="duracion_promedio" class="form-control" min="15" max="480" step="5" value="{{ horario.duracion_promedio_minutos if horario else 60 }}" required>
+                            <input type="number" name="duracion_promedio" class="form-control" min="15" max="480"
+                                step="5" value="{{ horario.duracion_promedio_minutos if horario else 60 }}" required>
                         </div>
-                        <button type="submit" class="btn btn-main">{% if horario %}Actualizar{% else %}Guardar{% endif %}</button>
-                        {% if horario %}
-                            <a href="{{ url_for('admin.horarios_admin') }}" class="btn btn-secondary ms-2">Cancelar</a>
-                        {% endif %}
+
+                        <!-- Contenedor alineado para los botones de acción -->
+                        <div class="d-flex flex-column flex-sm-row align-items-center gap-2 mt-4">
+                            <!-- Botón de Envío -->
+                            <button type="submit" class="btn btn-main">
+                                {% if horario %}Actualizar{% else %}Guardar{% endif %}
+                            </button>
+
+                            <!-- Enlace con comportamiento y apariencia de Botón -->
+                            {% if horario %}
+                            <a href="{{ url_for('admin.horarios_admin') }}" class="btn btn-secondary-custom">
+                                Cancelar
+                            </a>
+                            {% endif %}
+                        </div>
+
                     </form>
                 </div>
+
             </div>
         </div>
         <div class="col-lg-8">
@@ -61,7 +82,7 @@
                     <h4 class="card-title">Horarios registrados</h4>
                     {% if horarios %}
                     <div class="table-responsive">
-                        <table class="table table-striped align-middle">
+                        <table class="table table-striped align-middle datatable">
                             <thead>
                                 <tr>
                                     <th>Profesional</th>
@@ -81,8 +102,10 @@
                                     <td>{{ item.hora_fin.strftime('%H:%M') }}</td>
                                     <td>{{ item.duracion_promedio_minutos or 60 }} min</td>
                                     <td>
-                                        <a href="{{ url_for('admin.editar_horario', horario_id=item.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-                                        <a href="{{ url_for('admin.eliminar_horario', horario_id=item.id) }}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                        <a href="{{ url_for('admin.editar_horario', horario_id=item.id) }}"
+                                            class="btn btn-sm btn-outline-primary">Editar</a>
+                                        <a href="{{ url_for('admin.eliminar_horario', horario_id=item.id) }}"
+                                            class="btn btn-sm btn-outline-danger">Eliminar</a>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -99,6 +122,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
 
 {% endblock %}

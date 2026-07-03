@@ -3,14 +3,6 @@
 {% block body %}
 
 <div class="container py-5">
-    <!-- Mensajes Flash de Notificaciones -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
 
     <!-- Encabezado de la Página -->
     <div class="page-header d-flex justify-content-between align-items-center mb-4">
@@ -18,7 +10,13 @@
         <h4>Servicios</h4>
         <p class="text-muted mb-0">Gestiona la base de Servicios y sus características</p>
       </div>
-      <button class="btn btn-main" data-bs-toggle="modal" data-bs-target="#nuevoServicioModal">Agregar servicio</button>
+
+        <a class="btn btn-main w-100 w-sm-auto text-nowrap d-inline-flex align-items-center justify-content-center gap-2"
+            data-bs-toggle="modal" data-bs-target="#nuevoServicioModal">
+            <i class="bi bi-plus-circle"></i>
+            Nuevo servicio
+        </a>
+
     </div>
 
     <!-- Modal Nuevo Servicio -->
@@ -136,7 +134,7 @@
             <h4 class="card-title">Lista de servicios</h4>
             {% if servicios %}
             <div class="table-responsive">
-                <table class="table table-striped align-middle">
+                <table class="table table-striped align-middle datatable">
                     <thead>
                         <tr>
                             <th>Color</th>
