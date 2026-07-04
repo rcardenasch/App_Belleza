@@ -19,6 +19,7 @@ from app.models.disponibilidad import DisponibilidadSemanal
 from app.models.profesional import Profesional
 from app.models.servicio import Servicio
 from app.services.whatsapp_service import generar_link_whatsapp
+import re
 
 reservas_bp = Blueprint(
     "reservas",
@@ -53,6 +54,13 @@ def nueva():
         fecha = request.form.get("fecha", "").strip()
         hora = request.form.get("hora", "").strip()
         observacion = request.form.get("observacion", "").strip()
+
+        if not re.fullmatch(r"9\d{8}", telefono):
+            flash(
+                "Número de teléfono inválido.",
+                "warning"
+            )
+            return redirect(url_for("reservas.nueva", servicio_id=servicio_id, profesional_id=profesional_id, fecha=fecha, hora=hora,email=email, observacion=observacion))
 
         if not (nombre and telefono and servicio_id and profesional_id and fecha and hora):
             flash("Por favor completa todos los campos obligatorios.", "danger")
@@ -121,14 +129,44 @@ def nueva():
             if email:
                 cliente.email = email
 
+        cita_existente = (
+            Cita.query
+            .filter(
+                Cita.profesional_id == profesional.id,
+
+                Cita.estado.notin_([
+                    EstadoCita.CANCELADA,
+                    EstadoCita.NO_ASISTIO
+                ]),
+
+                Cita.fecha_inicio < fecha_fin,
+
+                Cita.fecha_fin > fecha_inicio
+            )
+            .first()
+        )
+
+        if cita_existente:
+
+            flash(
+                "Ese horario ya fue reservado. Por favor elige otro de los disponibles",
+                "warning"
+            )
+            return render_template(
+                "citas/nueva.html",servicios=servicios, profesionales=profesionales,
+                servicio_id=servicio_id, profesional_id=profesional_id,
+                fecha=fecha, hora=hora, nombre=nombre, telefono=telefono,
+                email=email, observacion=observacion
+            )
+        
         cita = Cita(
-            cliente_id=cliente.id,
-            profesional_id=profesional.id,
-            servicio_id=servicio.id,
-            fecha_inicio=fecha_inicio,
-            fecha_fin=fecha_fin,
-            estado=EstadoCita.PENDIENTE_PAGO,
-            observacion=observacion
+                cliente_id=cliente.id,
+                profesional_id=profesional.id,
+                servicio_id=servicio.id,
+                fecha_inicio=fecha_inicio,
+                fecha_fin=fecha_fin,
+                estado=EstadoCita.PENDIENTE_PAGO,
+                observacion=observacion
         )
 
         db.session.add(cita)

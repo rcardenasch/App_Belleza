@@ -20,6 +20,18 @@ from app.models.usuario import Usuario
 from flask_login import current_user, login_required
 from flask import request
 from decimal import Decimal, InvalidOperation
+from datetime import timedelta
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+from flask import request, redirect, url_for, flash, render_template
+
+from app.extensions import db
+from app.models.cita import Cita, EstadoCita
+from app.models.reprogramacion import Reprogramacion
+
+LIMA_TZ = ZoneInfo("America/Lima")
+UTC = ZoneInfo("UTC")
 
 admin_bp = Blueprint(
     "admin",
@@ -872,92 +884,39 @@ def ver_reserva(cita_id):
         "admin/ver_reserva.html",
         cita=cita
     )
-from datetime import timedelta
 
-@admin_bp.route("/reservas/nueva", methods=["GET","POST"])
+@admin_bp.route("/reservas/cancelar/<int:cita_id>", methods=["POST"])
 @login_required
-def nueva_reserva():
+def cancelar_reserva(cita_id):
 
-    clientes = Cliente.query.order_by(
-        Cliente.nombres
-    ).all()
+    cita = Cita.query.get_or_404(cita_id)
 
-    profesionales = Profesional.query.filter_by(
-        activo=True
-    ).all()
-
-    servicios = Servicio.query.filter_by(
-        activo=True
-    ).all()
-
-    if request.method == "POST":
-
-        cliente_id = request.form["cliente_id"]
-
-        profesional_id = request.form["profesional_id"]
-
-        servicio_id = request.form["servicio_id"]
-
-        fecha = request.form["fecha"]
-
-        hora = request.form["hora"]
-
-        servicio = Servicio.query.get(servicio_id)
-
-        fecha_inicio = datetime.strptime(
-            f"{fecha} {hora}",
-            "%Y-%m-%d %H:%M"
-        )
-
-        fecha_fin = fecha_inicio + timedelta(
-            minutes=servicio.duracion_minutos
-        )
-
-        nueva = Cita(
-
-            cliente_id=cliente_id,
-
-            profesional_id=profesional_id,
-
-            servicio_id=servicio_id,
-
-            fecha_inicio=fecha_inicio,
-
-            fecha_fin=fecha_fin,
-
-            estado=EstadoCita.PENDIENTE_PAGO
-
-        )
-
-        db.session.add(nueva)
-
-        db.session.commit()
+    if cita.estado == EstadoCita.CANCELADA:
 
         flash(
-            "Reserva creada correctamente.",
-            "success"
+            "La reserva ya se encuentra cancelada.",
+            "warning"
         )
 
         return redirect(
             url_for("admin.reservas_admin")
         )
 
-    return render_template(
+    cita.estado = EstadoCita.CANCELADA
 
-        "admin/nueva_reserva.html",
+    db.session.commit()
 
-        clientes=clientes,
-
-        profesionales=profesionales,
-
-        servicios=servicios
-
+    flash(
+        "Reserva cancelada correctamente.",
+        "success"
     )
 
-@admin_bp.route(
-    "/reservas/<int:cita_id>/reprogramar",
-    methods=["GET","POST"]
-)
+    return redirect(
+        url_for("admin.reservas_admin")
+    )
+
+
+@admin_bp.route("/reservas/reprogramar/<int:cita_id>", methods=["GET", "POST"])
 @login_required
 def reprogramar_reserva(cita_id):
 
@@ -966,70 +925,130 @@ def reprogramar_reserva(cita_id):
     if request.method == "POST":
 
         fecha = request.form["fecha"]
-
         hora = request.form["hora"]
+        motivo = request.form.get("motivo", "").strip()
 
-        fecha_inicio = datetime.strptime(
+        try:
 
-            f"{fecha} {hora}",
+            fecha_inicio_local = datetime.strptime(
+                f"{fecha} {hora}",
+                "%Y-%m-%d %H:%M"
+            ).replace(tzinfo=LIMA_TZ)
 
-            "%Y-%m-%d %H:%M"
+            if fecha_inicio_local < datetime.now(LIMA_TZ):
 
+                flash(
+                    "Debe seleccionar una fecha futura.",
+                    "warning"
+                )
+
+                return redirect(
+                    url_for(
+                        "admin.reprogramar_reserva",
+                        cita_id=cita.id
+                    )
+                )
+
+            fecha_inicio = (
+                fecha_inicio_local
+                .astimezone(UTC)
+                .replace(tzinfo=None)
+            )
+
+        except ValueError:
+
+            flash("Fecha inválida.", "danger")
+
+            return redirect(
+                url_for(
+                    "admin.reprogramar_reserva",
+                    cita_id=cita.id
+                )
+            )
+
+        duracion = cita.servicio.duracion_minutos or 60
+
+        fecha_fin = fecha_inicio + timedelta(
+            minutes=duracion
         )
 
-        duracion = (
-            cita.fecha_fin -
-            cita.fecha_inicio
+        conflicto = (
+            Cita.query
+            .filter(
+
+                Cita.id != cita.id,
+
+                Cita.profesional_id == cita.profesional_id,
+
+                Cita.estado.notin_([
+                    EstadoCita.CANCELADA,
+                    EstadoCita.NO_ASISTIO
+                ]),
+
+                Cita.fecha_inicio < fecha_fin,
+
+                Cita.fecha_fin > fecha_inicio
+
+            )
+            .first()
         )
 
-        fecha_fin = fecha_inicio + duracion
+        if conflicto:
+
+            flash(
+                "El profesional ya tiene una reserva en ese horario.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "admin.reprogramar_reserva",
+                    cita_id=cita.id
+                )
+            )
 
         historial = Reprogramacion(
 
             cita_id=cita.id,
 
-            fecha_anterior=cita.fecha_inicio,
+            fecha_anterior_inicio=cita.fecha_inicio,
 
-            fecha_nueva=fecha_inicio,
+            fecha_anterior_fin=cita.fecha_fin,
 
-            motivo=request.form.get(
-                "motivo"
-            )
+            fecha_nueva_inicio=fecha_inicio,
+
+            fecha_nueva_fin=fecha_fin,
+
+            motivo=motivo
 
         )
-
-        cita.fecha_inicio = fecha_inicio
-
-        cita.fecha_fin = fecha_fin
-
-        cita.estado = EstadoCita.REPROGRAMADA
 
         db.session.add(historial)
 
+        cita.fecha_inicio = fecha_inicio
+        cita.fecha_fin = fecha_fin
+
+        if cita.estado != EstadoCita.FINALIZADA:
+            cita.estado = EstadoCita.REPROGRAMADA
+        
+        
         db.session.commit()
 
         flash(
-
             "Reserva reprogramada correctamente.",
-
             "success"
-
         )
 
         return redirect(
-
             url_for("admin.reservas_admin")
-
         )
 
     return render_template(
-
         "admin/reprogramar_reserva.html",
-
         cita=cita
-
     )
 
+    
 @admin_bp.route(
     "/reservas/<int:cita_id>/confirmar-pago"
 )
@@ -1051,24 +1070,3 @@ def confirmar_pago(cita_id):
         url_for("admin.reservas_admin")
     )
 
-@admin_bp.route(
-    "/reservas/<int:cita_id>/cancelar",
-    methods=["POST"]
-)
-@login_required
-def cancelar_reserva(cita_id):
-
-    cita = Cita.query.get_or_404(cita_id)
-
-    cita.estado = EstadoCita.CANCELADA
-
-    db.session.commit()
-
-    flash(
-        "Reserva cancelada.",
-        "warning"
-    )
-
-    return redirect(
-        url_for("admin.reservas_admin")
-    )

@@ -257,13 +257,14 @@
                         </td>
 
                         <td>
-
+                            <!-- Ver reserva  
                             <a href="{{ url_for('admin.ver_reserva', cita_id=cita.id) }}"
                                 class="btn btn-sm btn-outline-primary">
 
                                 Ver
 
                             </a>
+                            -->
 
                             <a href="{{ url_for('admin.reprogramar_reserva', cita_id=cita.id) }}"
                                 class="btn btn-sm btn-outline-warning">
@@ -286,6 +287,21 @@
                                 <i class="bi bi-whatsapp"></i>
 
                             </a>
+             
+                            <form method="POST"
+                                action="{{ url_for('admin.cancelar_reserva', cita_id=cita.id) }}"
+                                style="display:inline;">
+
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                <button class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('¿Cancelar esta reserva?')">
+
+                                    Cancelar Cita
+
+                                </button>
+
+                                </form>
 
                         </td>
 

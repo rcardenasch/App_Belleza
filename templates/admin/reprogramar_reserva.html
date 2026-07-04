@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Reprogramar Reserva{% endblock %}
+
+{% block body %}
+
+<div class="container py-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow border-0">
+
+                <div class="card-header bg-warning text-dark">
+
+                    <h4 class="mb-0">
+                        <i class="bi bi-calendar-event me-2"></i>
+                        Reprogramar Reserva
+                    </h4>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row mb-4">
+
+                        <div class="col-md-6">
+
+                            <label class="fw-bold">Cliente</label>
+
+                            <input
+                                class="form-control"
+                                value="{{ cita.cliente.nombres }}"
+                                readonly>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="fw-bold">Teléfono</label>
+
+                            <input
+                                class="form-control"
+                                value="{{ cita.cliente.telefono }}"
+                                readonly>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row mb-4">
+
+                        <div class="col-md-6">
+
+                            <label class="fw-bold">Servicio</label>
+
+                            <input
+                                class="form-control"
+                                value="{{ cita.servicio.nombre }}"
+                                readonly>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="fw-bold">Profesional</label>
+
+                            <input
+                                class="form-control"
+                                value="{{ cita.profesional.nombres }}"
+                                readonly>
+
+                        </div>
+
+                    </div>
+
+                    <div class="alert alert-info">
+
+                        <h6 class="mb-2">
+
+                            <i class="bi bi-clock-history"></i>
+
+                            Horario Actual
+
+                        </h6>
+
+                        <strong>Fecha:</strong>
+
+                        {{ cita.fecha_inicio_lima.strftime('%d/%m/%Y') }}
+
+                        <br>
+
+                        <strong>Hora:</strong>
+
+                        {{ cita.fecha_inicio_lima.strftime('%H:%M') }}
+
+                        -
+
+                        {{ cita.fecha_fin_lima.strftime('%H:%M') }}
+
+                    </div>
+
+                    <form method="POST">
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}">
+
+                        <hr>
+
+                        <h5 class="mb-4">
+
+                            Nuevo Horario
+
+                        </h5>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+
+                                    Nueva Fecha
+
+                                </label>
+
+                                <input
+
+                                    type="date"
+
+                                    name="fecha"
+
+                                    class="form-control"
+
+                                    required>
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+
+                                    Nueva Hora
+
+                                </label>
+
+                                <input
+
+                                    type="time"
+
+                                    name="hora"
+
+                                    class="form-control"
+
+                                    required>
+
+                            </div>
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label class="form-label">
+
+                                Motivo de la reprogramación
+
+                            </label>
+
+                            <textarea
+
+                                class="form-control"
+
+                                name="motivo"
+
+                                rows="4"
+
+                                placeholder="Ejemplo: Cliente solicitó cambiar la cita por motivos personales."></textarea>
+
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+
+                            <a
+
+                                href="{{ url_for('admin.reservas_admin') }}"
+
+                                class="btn btn-secondary-custom">
+
+                                <i class="bi bi-arrow-left"></i>
+
+                                Volver
+
+                            </a>
+
+                            <button
+
+                                class="btn btn-warning">
+
+                                <i class="bi bi-calendar-check"></i>
+
+                                Reprogramar Reserva
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
