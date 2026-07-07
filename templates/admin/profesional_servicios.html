@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}
+Asignar Servicios
+{% endblock %}
+
+{% block body %}
+
+<div class="container py-4">
+
+    <h3 class="mb-4">
+        Asignar servicios a profesionales
+    </h3>
+
+    <form method="get" class="row g-3 mb-4">
+
+        <div class="col-md-6">
+
+            <label class="form-label">
+                Profesional
+            </label>
+
+            <select
+                class="form-select"
+                name="profesional_id"
+                onchange="this.form.submit()">
+
+                <option value="">
+                    Seleccione...
+                </option>
+
+                {% for p in profesionales %}
+
+                <option
+                    value="{{ p.id }}"
+                    {% if profesional and profesional.id==p.id %}
+                    selected
+                    {% endif %}>
+
+                    {{ p.nombres }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+    </form>
+
+    {% if profesional %}
+
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <input
+            type="hidden"
+            name="profesional_id"
+            value="{{ profesional.id }}">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <strong>
+
+                    {{ profesional.nombres }}
+
+                </strong>
+
+            </div>
+
+            <div class="card-body">
+
+                {% for servicio in servicios %}
+
+                <div class="form-check mb-2">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="servicios"
+                        value="{{ servicio.id }}"
+                        id="srv{{ servicio.id }}"
+
+                        {% if servicio in profesional.servicios %}
+                        checked
+                        {% endif %}
+                    >
+
+                    <label
+                        class="form-check-label"
+                        for="srv{{ servicio.id }}">
+
+                        {{ servicio.nombre }}
+
+                        ({{ servicio.duracion_minutos }} min)
+
+                    </label>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            <div class="card-footer">
+
+                <button
+                    class="btn btn-primary">
+
+                    Guardar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

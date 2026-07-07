@@ -52,6 +52,12 @@ class Cita(db.Model):
 
     fecha_fin = db.Column(db.DateTime, nullable=False)
 
+    # guardamos el nombre, teléfono y correo del cliente en la cita para tener un registro histórico
+    cliente_nombre = db.Column(db.String(150))
+    cliente_telefono = db.Column(db.String(20))
+    cliente_email = db.Column(db.String(120))
+
+
     estado = db.Column(
         db.Enum(EstadoCita),
         default=EstadoCita.PENDIENTE_PAGO

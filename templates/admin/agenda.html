@@ -44,20 +44,20 @@
         <div class="d-flex flex-wrap">
           {% for s in item.slots %}
             {% set cls = 'btn-secondary' %}
-            {% if s.status == 'available' %}
+            {% if s.estado  == 'available' %}
               {% set cls = 'btn-success' %}
             {% elif s.status == 'booked' %}
               {% set cls = 'btn-warning text-dark' %}
-            {% elif s.status == 'blocked' %}
+            {% elif s.estado  == 'blocked' %}
               {% set cls = 'btn-danger' %}
-            {% elif s.status == 'conflict' %}
+            {% elif s.estado  == 'conflict' %}
               {% set cls = 'btn-danger' %}
-            {% elif s.status == 'service_conflict' %}
+            {% elif s.estado  == 'service_conflict' %}
               {% set cls = 'btn-info text-dark' %}
-            {% elif s.status == 'outside' %}
+            {% elif s.estado  == 'outside' %}
               {% set cls = 'btn-dark' %}
             {% endif %}
-            <button type="button" class="btn {{ cls }} slot" title="{{ s.note or '' }}">{{ s.start }}</button>
+            <button type="button" class="btn {{ cls }} slot" title="{{ s.motivo  or '' }}">{{ s.hora }}</button>
           {% endfor %}
         </div>
       </div>

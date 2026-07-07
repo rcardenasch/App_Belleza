@@ -255,43 +255,6 @@ ON profesionales(nombres);
 CREATE INDEX idx_servicio_nombre
 ON servicios(nombre);
 
--- datos iniciales
-INSERT INTO usuarios
-(
-    username,
-    password_hash,
-    rol
-)
-VALUES
-(
-    'admin',
-    'AQUI_HASH_GENERADO_POR_WERKZEUG',
-    'admin'
-);
-
-INSERT INTO servicios
-(
-    nombre,
-    descripcion,
-    precio,
-    duracion_minutos
-)
-VALUES
-
-('Microblading',
- 'Diseño profesional de cejas',
- 250,
- 120),
-
-('Pestañas Premium',
- 'Extensiones de pestañas',
- 120,
- 90),
-
-('Laminado HD',
- 'Laminado profesional',
- 100,
- 60);
 
  CREATE TABLE banners
 (
@@ -343,3 +306,69 @@ CREATE TABLE promociones
 
     activo BOOLEAN DEFAULT TRUE
 );
+
+
+
+-- servicios
+ALTER TABLE servicios ADD COLUMN color VARCHAR(20) DEFAULT '#3788d8';
+
+-- profesionales
+ALTER TABLE profesionales ADD COLUMN email VARCHAR(150);
+ALTER TABLE profesionales ADD COLUMN especialidad VARCHAR(150);
+ALTER TABLE profesionales ADD COLUMN color_agenda VARCHAR(20) DEFAULT '#28a745';
+
+-- pagos
+ALTER TABLE pagos ADD COLUMN metodo_pago VARCHAR(50);
+ALTER TABLE pagos ADD COLUMN numero_operacion VARCHAR(100);
+ALTER TABLE pagos ADD COLUMN observacion TEXT;
+ALTER TABLE pagos ADD COLUMN fecha_pago TIMESTAMP DEFAULT NOW();
+
+-- bloqueos
+ALTER TABLE bloqueos ADD COLUMN repetir BOOLEAN DEFAULT FALSE;
+ALTER TABLE bloqueos ADD COLUMN activo BOOLEAN DEFAULT TRUE;
+ALTER TABLE bloqueos ADD COLUMN fecha_creacion TIMESTAMP DEFAULT NOW();
+
+-- citas
+ALTER TABLE citas ADD COLUMN fecha_creacion TIMESTAMP DEFAULT NOW();
+ALTER TABLE citas ADD COLUMN fecha_actualizacion TIMESTAMP DEFAULT NOW();
+
+CREATE TABLE reprogramaciones (
+    id SERIAL PRIMARY KEY,
+    cita_id INTEGER NOT NULL REFERENCES citas(id),
+    fecha_anterior_inicio TIMESTAMP,
+    fecha_anterior_fin TIMESTAMP,
+    fecha_nueva_inicio TIMESTAMP,
+    fecha_nueva_fin TIMESTAMP,
+    profesional_anterior_id INTEGER REFERENCES profesionales(id),
+    profesional_nuevo_id INTEGER REFERENCES profesionales(id),
+    motivo TEXT,
+    usuario VARCHAR(100),
+    fecha TIMESTAMP DEFAULT NOW()
+);
+ 
+-- agregar campos a cita:
+ALTER TABLE citas ADD COLUMN cliente_nombre VARCHAR(150) ;
+ALTER TABLE citas ADD COLUMN cliente_telefono VARCHAR(20) ;
+ALTER TABLE citas ADD COLUMN cliente_email VARCHAR(150);
+
+-- ver restriciones en tablas
+SELECT conname
+FROM pg_constraint
+WHERE conrelid = 'clientes'::regclass;
+
+
+
+-- modificar restriccion de existir con nombre: clientes_telefono_key:
+
+ALTER TABLE clientes
+DROP CONSTRAINT clientes_telefono_key;
+-- es para evitar registros duplicados de nombre y telefono de clientes,
+--si se puede reservar con un telefono y nomrres diferetes
+
+ALTER TABLE clientes
+ADD CONSTRAINT uq_cliente_nombre_telefono
+UNIQUE (nombres, telefono);
+
+
+
+

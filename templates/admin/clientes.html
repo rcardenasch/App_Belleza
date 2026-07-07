@@ -85,8 +85,21 @@
                             <td class="text-end">
                                 <a href="{{ url_for('admin.editar_cliente', cliente_id=cli.id) }}"
                                     class="btn btn-sm btn-outline-primary me-1">Editar</a>
-                                <a href="{{ url_for('admin.eliminar_cliente', cliente_id=cli.id) }}"
-                                    class="btn btn-sm btn-outline-danger">Eliminar</a>
+          
+                                <form method="POST" action="{{ url_for('admin.eliminar_cliente', cliente_id=cli.id) }}"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('¿Está seguro de eliminar este cliente?');">
+
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+
+                                        Eliminar
+
+                                    </button>
+
+                                </form>
+                            
                             </td>
                         </tr>
                         {% endfor %}
@@ -126,15 +139,15 @@
                 </div>
 
                 <!-- Botones mejorados en la misma fila y al 50% de ancho -->
-                    <div class="modal-footer row g-2 mx-0 w-100 px-0">
-                        <div class="col-6 m-0">
-                            <button type="submit" class="btn btn-main w-100">Guardar</button>
-                        </div>
-                        <div class="col-6 m-0 ps-2">
-                            <button type="button" class="btn btn-secondary-custom w-100"
-                                data-bs-dismiss="modal">Cancelar</button>
-                        </div>
+                <div class="modal-footer row g-2 mx-0 w-100 px-0">
+                    <div class="col-6 m-0">
+                        <button type="submit" class="btn btn-main w-100">Guardar</button>
                     </div>
+                    <div class="col-6 m-0 ps-2">
+                        <button type="button" class="btn btn-secondary-custom w-100"
+                            data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
 
             </form>
         </div>

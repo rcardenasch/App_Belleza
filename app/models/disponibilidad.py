@@ -35,6 +35,7 @@ class DisponibilidadSemanal(db.Model):
         db.Integer,
         default=60
     )
+    activo = db.Column(db.Boolean, default=True)
 
     profesional = db.relationship(
         "Profesional",

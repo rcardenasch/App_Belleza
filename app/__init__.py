@@ -1,4 +1,5 @@
 from flask import Flask
+from flask.cli import load_dotenv
 from app.config.settings import Config
 from app.extensions import db, migrate, login_manager, csrf, limiter
 from flask_wtf.csrf import generate_csrf
@@ -10,6 +11,11 @@ from app.blueprints.admin.routes import admin_bp
 import app.models.usuario
 from app.config.cloudinary_config import *
 
+from app.config.settings import Config
+
+
+load_dotenv()
+
 def create_app():
 
     app = Flask(
@@ -18,6 +24,13 @@ def create_app():
     )
 
     app.config.from_object(Config)
+
+    print("=" * 50)
+    print("EVOLUTION_URL:", app.config.get("EVOLUTION_URL"))
+    print("EVOLUTION_INSTANCE:", app.config.get("EVOLUTION_INSTANCE"))
+    print("EVOLUTION_TOKEN:", app.config.get("EVOLUTION_TOKEN"))
+    print("WHATSAPP_ADMIN:", app.config.get("WHATSAPP_ADMIN"))
+    print("=" * 50)
 
     db.init_app(app)
     migrate.init_app(app, db)

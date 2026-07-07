@@ -9,6 +9,7 @@ from flask import (
 from app.extensions import db
 from datetime import datetime, timedelta, time
 from zoneinfo import ZoneInfo
+from app.models import profesional
 from app.models.bloqueo import BloqueoAgenda
 from app.models.disponibilidad import DisponibilidadSemanal
 from app.models.profesional import Profesional
@@ -29,6 +30,9 @@ from flask import request, redirect, url_for, flash, render_template
 from app.extensions import db
 from app.models.cita import Cita, EstadoCita
 from app.models.reprogramacion import Reprogramacion
+from app.services.agenda_service import AgendaService
+from app.services.database_service import DatabaseService
+
 
 LIMA_TZ = ZoneInfo("America/Lima")
 UTC = ZoneInfo("UTC")
@@ -139,8 +143,6 @@ def eliminar_profesional(profesional_id):
     flash("Profesional eliminado.", "success")
     return redirect(url_for("admin.profesionales_admin"))
 
-LIMA_TZ = ZoneInfo("America/Lima")
-UTC = ZoneInfo("UTC")
 
 # =====================================
 # CRUD Servicios
@@ -249,57 +251,6 @@ def eliminar_servicio(servicio_id):
 LIMA_TZ = ZoneInfo("America/Lima")
 UTC = ZoneInfo("UTC")
 
-# ======================================
-# CRUD Horarios
-# ========================================
-@admin_bp.route("/horarios", methods=["GET", "POST"])
-def horarios_admin():
-    profesionales = Profesional.query.order_by(Profesional.nombres).all()
-    horarios = DisponibilidadSemanal.query.order_by(
-        DisponibilidadSemanal.dia_semana,
-        DisponibilidadSemanal.hora_inicio
-    ).all()
-
-    if request.method == "POST":
-        profesional_id = request.form.get("profesional_id", type=int)
-        dia_semana = request.form.get("dia_semana", type=int)
-        hora_inicio = request.form.get("hora_inicio", "").strip()
-        hora_fin = request.form.get("hora_fin", "").strip()
-        duracion_promedio = request.form.get("duracion_promedio", type=int)
-
-        profesional = Profesional.query.get(profesional_id)
-        if not profesional:
-            flash("Profesional no válido.", "danger")
-            return redirect(url_for("admin.horarios_admin"))
-
-        if not (dia_semana and hora_inicio and hora_fin):
-            flash("Completa todos los campos del horario.", "danger")
-            return redirect(url_for("admin.horarios_admin"))
-
-        if hora_inicio >= hora_fin:
-            flash("La hora de inicio debe ser anterior a la hora de fin.", "danger")
-            return redirect(url_for("admin.horarios_admin"))
-
-        disponibilidad = DisponibilidadSemanal(
-            profesional_id=profesional.id,
-            dia_semana=dia_semana,
-            hora_inicio=hora_inicio,
-            hora_fin=hora_fin,
-            duracion_promedio_minutos=duracion_promedio or 60
-        )
-        db.session.add(disponibilidad)
-        db.session.commit()
-
-        flash("Horario agregado correctamente.", "success")
-        return redirect(url_for("admin.horarios_admin"))
-
-    return render_template(
-        "admin/horarios.html",
-        profesionales=profesionales,
-        horarios=horarios,
-        dia_semana=DIA_SEMANA,
-        horario=None
-    )
 
 # ======================================
 # CRUD bloqueos
@@ -474,147 +425,214 @@ def eliminar_bloqueo(bloqueo_id):
 # ======================================
 # Listar agenda
 # ========================================
+import inspect
 @admin_bp.route("/agenda")
 def agenda_admin():
-    """Vista administrativa para ver la agenda por fecha y profesional.
+    print("Archivo AgendaService:")
+    print(inspect.getfile(AgendaService))
+    fecha = request.args.get(
+        "fecha",
+        datetime.now().date().isoformat()
+    )
 
-    Muestra una grilla de slots (paso 30 minutos) indicando estados:
-    - available: dentro de disponibilidad y sin citas ni bloqueos
-    - booked: existe una cita
-    - blocked: existe un bloqueo
-    - conflict: cita y bloqueo se superponen o cita fuera de disponibilidad
-    - service_conflict: la cita tiene un servicio no asignado al profesional
-    """
-    fecha_str = request.args.get("fecha", datetime.now().date().isoformat())
-    profesional_id = request.args.get("profesional_id", type=int)
-    servicio_id = request.args.get("servicio_id", type=int)
+    profesional_id = request.args.get(
+        "profesional_id",
+        type=int
+    )
 
-    try:
-        fecha_obj = datetime.strptime(fecha_str, "%Y-%m-%d").date()
-    except ValueError:
-        fecha_obj = datetime.now().date()
+    servicio_id = request.args.get(
+        "servicio_id",
+        type=int
+    )
 
-    profesionales = Profesional.query.order_by(Profesional.nombres).all()
-
-    # preparar rango UTC del día
-    local_start = datetime.combine(fecha_obj, time.min).replace(tzinfo=LIMA_TZ)
-    local_end = datetime.combine(fecha_obj, time.max).replace(tzinfo=LIMA_TZ)
-    utc_start = local_start.astimezone(UTC).replace(tzinfo=None)
-    utc_end = local_end.astimezone(UTC).replace(tzinfo=None)
+    profesionales = Profesional.query.order_by(
+        Profesional.nombres
+    ).all()
 
     agenda = []
 
-    profs = [p for p in profesionales if (not profesional_id or p.id == profesional_id)]
-    for prof in profs:
-        # disponibilidades para el día
-        dia = fecha_obj.isoweekday()
-        disponibilidades = DisponibilidadSemanal.query.filter_by(
-            profesional_id=prof.id,
-            dia_semana=dia
-        ).all()
+    if profesional_id:
 
-        # bloqueos y citas del día
-        bloqueos = BloqueoAgenda.query.filter(
-            BloqueoAgenda.profesional_id == prof.id,
-            BloqueoAgenda.fecha_inicio < utc_end,
-            BloqueoAgenda.fecha_fin > utc_start
-        ).all()
+        profesional = Profesional.query.get_or_404(
+            profesional_id
+        )
 
-        citas = Cita.query.filter(
-            Cita.profesional_id == prof.id,
-            Cita.fecha_inicio < utc_end,
-            Cita.fecha_fin > utc_start
-        ).all()
-
-        # determinar rango de visualización: usar disponibilidades si existen, sino 08:00-20:00
-        if disponibilidades:
-            min_start = min(d.hora_inicio for d in disponibilidades)
-            max_end = max(d.hora_fin for d in disponibilidades)
-        else:
-            min_start = time(8, 0)
-            max_end = time(20, 0)
-
-        slots = []
-        cursor_local = datetime.combine(fecha_obj, min_start).replace(tzinfo=LIMA_TZ)
-        end_local = datetime.combine(fecha_obj, max_end).replace(tzinfo=LIMA_TZ)
-        step = timedelta(minutes=30)
-
-        # helper para verificar solapamientos
-        busy_periods = []
-        for b in bloqueos:
-            busy_periods.append((b.fecha_inicio, b.fecha_fin, 'bloqueo', b))
-        for c in citas:
-            busy_periods.append((c.fecha_inicio, c.fecha_fin, 'cita', c))
-
-        def overlaps(start_utc, end_utc, period):
-            a_start, a_end = period[0], period[1]
-            return start_utc < a_end and end_utc > a_start
-
-        while cursor_local < end_local:
-            slot_start_local = cursor_local
-            slot_end_local = cursor_local + step
-            slot_start_utc = slot_start_local.astimezone(UTC).replace(tzinfo=None)
-            slot_end_utc = slot_end_local.astimezone(UTC).replace(tzinfo=None)
-
-            # verificar si dentro de alguna disponibilidad
-            inside_availability = any(
-                datetime.combine(fecha_obj, d.hora_inicio).replace(tzinfo=LIMA_TZ) <= slot_start_local
-                and datetime.combine(fecha_obj, d.hora_fin).replace(tzinfo=LIMA_TZ) >= slot_end_local
-                for d in disponibilidades
-            )
-
-            status = 'outside'
-            note = None
-
-            # buscar bloqueos y citas que se superpongan
-            slot_blocked = [b for b in bloqueos if overlaps(slot_start_utc, slot_end_utc, (b.fecha_inicio, b.fecha_fin))]
-            slot_citas = [c for c in citas if overlaps(slot_start_utc, slot_end_utc, (c.fecha_inicio, c.fecha_fin))]
-
-            if slot_blocked and slot_citas:
-                status = 'conflict'
-                note = 'Cita y bloqueo se superponen'
-            elif slot_blocked:
-                status = 'blocked'
-                note = slot_blocked[0].motivo
-            elif slot_citas:
-                # verificar si servicio de la cita pertenece al profesional
-                c = slot_citas[0]
-                servicio_ok = any(s.id == c.servicio_id for s in prof.servicios)
-                if not servicio_ok:
-                    status = 'service_conflict'
-                    note = f"Servicio no asignado: {c.servicio_id}"
-                else:
-                    status = 'booked'
-                    note = f"Cita #{c.id}"
-            elif inside_availability:
-                status = 'available'
-
-            slots.append({
-                'start': slot_start_local.strftime('%H:%M'),
-                'end': slot_end_local.strftime('%H:%M'),
-                'status': status,
-                'note': note
-            })
-
-            cursor_local += step
 
         agenda.append({
-            'profesional': prof,
-            'slots': slots
+
+            "profesional": profesional,
+
+            "slots": AgendaService.generar_agenda_profesional(
+                profesional.id,
+                fecha,
+                servicio_id
+
+            )   
+
+
         })
 
-    servicios = Servicio.query.filter_by(activo=True).all()
+    else:
 
-    return render_template('admin/agenda.html',
-                           fecha=fecha_obj.isoformat(),
-                           profesionales=profesionales,
-                           agenda=agenda,
-                           servicios=servicios)
+        for profesional in profesionales:
 
+            agenda.append({
+
+                "profesional": profesional,
+
+                "slots": AgendaService.generar_agenda_profesional(
+                    profesional.id,
+                    fecha,
+                    servicio_id
+
+                )
+
+            })
+
+
+    servicios = Servicio.query.filter_by(
+        activo=True
+    ).all()
+
+    return render_template(
+        "admin/agenda.html",
+        fecha=fecha,
+        agenda=agenda,
+        profesionales=profesionales,
+        servicios=servicios
+
+    )
+
+#===================================
+# Profesional servicio
+#===================================
+
+@admin_bp.route("/profesional-servicios", methods=["GET", "POST"])
+def profesional_servicios():
+
+    if request.method == "POST":
+
+        profesional_id = request.form.get(
+            "profesional_id",
+            type=int
+        )
+
+        servicios_ids = request.form.getlist(
+            "servicios"
+        )
+
+        profesional = Profesional.query.get_or_404(
+            profesional_id
+        )
+
+        profesional.servicios.clear()
+
+        if servicios_ids:
+
+            servicios = Servicio.query.filter(
+                Servicio.id.in_(servicios_ids)
+            ).all()
+
+            profesional.servicios.extend(
+                servicios
+            )
+
+        db.session.commit()
+
+        flash(
+            "Servicios asignados correctamente.",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "admin.profesional_servicios",
+                profesional_id=profesional.id
+            )
+        )
+
+    profesionales = Profesional.query.order_by(
+        Profesional.nombres
+    ).all()
+
+    servicios = Servicio.query.filter_by(
+        activo=True
+    ).order_by(
+        Servicio.nombre
+    ).all()
+
+    profesional = None
+
+    profesional_id = request.args.get(
+        "profesional_id",
+        type=int
+    )
+
+    if profesional_id:
+
+        profesional = Profesional.query.get_or_404(
+            profesional_id
+        )
+
+    return render_template(
+        "admin/profesional_servicios.html",
+        profesionales=profesionales,
+        servicios=servicios,
+        profesional=profesional
+    )
 
 # ======================================
-# CRUD horario
+# CRUD Horarios
 # ========================================
+@admin_bp.route("/horarios", methods=["GET", "POST"])
+def horarios_admin():
+    profesionales = Profesional.query.order_by(Profesional.nombres).all()
+    horarios = DisponibilidadSemanal.query.order_by(
+        DisponibilidadSemanal.dia_semana,
+        DisponibilidadSemanal.hora_inicio
+    ).all()
+
+    if request.method == "POST":
+        profesional_id = request.form.get("profesional_id", type=int)
+        dia_semana = request.form.get("dia_semana", type=int)
+        hora_inicio = request.form.get("hora_inicio", "").strip()
+        hora_fin = request.form.get("hora_fin", "").strip()
+        duracion_promedio = request.form.get("duracion_promedio", type=int)
+
+        profesional = Profesional.query.get(profesional_id)
+        if not profesional:
+            flash("Profesional no válido.", "danger")
+            return redirect(url_for("admin.horarios_admin"))
+
+        if not (dia_semana and hora_inicio and hora_fin):
+            flash("Completa todos los campos del horario.", "danger")
+            return redirect(url_for("admin.horarios_admin"))
+
+        if hora_inicio >= hora_fin:
+            flash("La hora de inicio debe ser anterior a la hora de fin.", "danger")
+            return redirect(url_for("admin.horarios_admin"))
+
+        disponibilidad = DisponibilidadSemanal(
+            profesional_id=profesional.id,
+            dia_semana=dia_semana,
+            hora_inicio=hora_inicio,
+            hora_fin=hora_fin,
+            duracion_promedio_minutos=duracion_promedio or 60
+        )
+        db.session.add(disponibilidad)
+        db.session.commit()
+
+        flash("Horario agregado correctamente.", "success")
+        return redirect(url_for("admin.horarios_admin"))
+
+    return render_template(
+        "admin/horarios.html",
+        profesionales=profesionales,
+        horarios=horarios,
+        dia_semana=DIA_SEMANA,
+        horario=None
+    )
+
 @admin_bp.route("/horarios/editar/<int:horario_id>", methods=["GET", "POST"])
 def editar_horario(horario_id):
     horario = DisponibilidadSemanal.query.get_or_404(horario_id)
@@ -839,12 +857,18 @@ def editar_cliente(cliente_id):
     clientes = Cliente.query.order_by(Cliente.id.desc()).all()
     return render_template("admin/clientes.html", clientes=clientes, cliente=cliente)
 
-@admin_bp.route("/clientes/eliminar/<int:cliente_id>")
+@admin_bp.route("/clientes/eliminar/<int:cliente_id>", methods=["POST"])
+@login_required
 def eliminar_cliente(cliente_id):
+
     cliente = Cliente.query.get_or_404(cliente_id)
-    db.session.delete(cliente)
-    db.session.commit()
-    flash("Cliente eliminado.", "success")
+
+    DatabaseService.delete(
+        cliente,
+        success="Cliente eliminado correctamente.",
+        error="No puede eliminar el cliente porque tiene reservas asociadas."
+    )
+
     return redirect(url_for("admin.clientes_admin"))
 
 
@@ -860,6 +884,7 @@ def reservas_admin():
         .join(Cita.cliente)
         .join(Cita.profesional)
         .join(Cita.servicio)
+         .filter(Cita.estado != 'CANCELADA')  # <--- Filtro añadido
         .order_by(Cita.fecha_inicio.desc())
         .all()
     )
@@ -922,6 +947,7 @@ def reprogramar_reserva(cita_id):
 
     cita = Cita.query.get_or_404(cita_id)
 
+
     if request.method == "POST":
 
         fecha = request.form["fecha"]
@@ -977,16 +1003,13 @@ def reprogramar_reserva(cita_id):
             .filter(
 
                 Cita.id != cita.id,
-
                 Cita.profesional_id == cita.profesional_id,
-
                 Cita.estado.notin_([
                     EstadoCita.CANCELADA,
                     EstadoCita.NO_ASISTIO
                 ]),
 
                 Cita.fecha_inicio < fecha_fin,
-
                 Cita.fecha_fin > fecha_inicio
 
             )
@@ -1006,19 +1029,36 @@ def reprogramar_reserva(cita_id):
                     cita_id=cita.id
                 )
             )
+        
+
+        ok, mensaje = AgendaService.validar_disponibilidad(
+                cita.profesional_id,
+                fecha_inicio,
+                fecha_fin,
+                cita.id
+                )
+
+        if not ok:
+
+            flash(mensaje, "warning")
+
+            return redirect(
+                url_for(
+                    "admin.reprogramar_reserva",
+                    cita_id=cita.id
+                )
+            )
+
 
         historial = Reprogramacion(
 
             cita_id=cita.id,
-
             fecha_anterior_inicio=cita.fecha_inicio,
-
+            profesional_anterior_id=cita.profesional_id,
             fecha_anterior_fin=cita.fecha_fin,
-
+            profesional_nuevo_id=cita.profesional_id,
             fecha_nueva_inicio=fecha_inicio,
-
             fecha_nueva_fin=fecha_fin,
-
             motivo=motivo
 
         )
