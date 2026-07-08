@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Admin Beauty Studio{% endblock %}
+{% block title %}JI-Lashista{% endblock %}
 {% block body %}
 <div class="container py-5">
     <div class="row g-4">
@@ -9,6 +9,15 @@
                     <h4 class="card-title">Profesionales</h4>
                     <p class="card-text">Gestiona especialistas y sus horarios.</p>
                     <a href="{{ url_for('admin.profesionales_admin') }}" class="btn btn-main">Ver profesionales</a>
+                </div>
+            </div>
+        </div>
+                <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Servicios</h4>
+                    <p class="card-text">Gestiona servicios del negocio.</p>
+                    <a href="{{ url_for('admin.servicios_admin') }}" class="btn btn-main">Ver servicios</a>
                 </div>
             </div>
         </div>
@@ -24,9 +33,18 @@
         <div class="col-md-6">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h4 class="card-title">Galería</h4>
+                    <h4 class="card-title">Agenda</h4>
+                    <p class="card-text">Muestra la agenda de los profesionales.</p>
+                    <a href="{{ url_for('admin.agenda_admin') }}" class="btn btn-main">Ver Agenda</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Resultados</h4>
                     <p class="card-text">Muestra los resultados antes y después.</p>
-                    <a href="{{ url_for('admin.galeria_admin') }}" class="btn btn-main">Ver galería</a>
+                    <a href="{{ url_for('admin.galeria_admin') }}" class="btn btn-main">Ver Resultados</a>
                 </div>
             </div>
         </div>
@@ -45,6 +63,15 @@
                     <h4 class="card-title">Clientes</h4>
                     <p class="card-text">Consulta datos de clientes registrados.</p>
                     <a href="{{ url_for('admin.clientes_admin') }}" class="btn btn-main">Ver clientes</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Reservas</h4>
+                    <p class="card-text">Consulta reservas registrados.</p>
+                    <a href="{{ url_for('admin.reservas_admin') }}" class="btn btn-main">Ver Reservas</a>
                 </div>
             </div>
         </div>
@@ -80,6 +107,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
 
 {% endblock %}

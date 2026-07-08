@@ -1,40 +1,132 @@
 {% extends 'base.html' %}
-{% block title %}Admin - Usuarios{% endblock %}
+{% block title %}Cita Confirmada - Centro de Belleza{% endblock %}
 {% block body %}
+
+<!-- Estilos integrados para garantizar la estética premium de estética -->
+<style>
+    .bg-beauty-gradient {
+        background: linear-gradient(135deg, #ec4899, #c084fc);
+    }
+    .text-beauty {
+        color: #c142a1;
+    }
+    .border-beauty {
+        border-color: #f4eeff !important;
+    }
+    .ticket-detail {
+        background-color: #fdfbfe;
+        border-radius: 12px;
+        border: 1px dashed #c142a1;
+    }
+    .btn-whatsapp {
+        background-color: #25D366;
+        color: white;
+        border: none;
+        transition: all 0.2s ease;
+    }
+    .btn-whatsapp:hover {
+        background-color: #20ba5a;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .btn-outline-beauty {
+        border: 2px solid #c142a1;
+        color: #c142a1;
+        background: transparent;
+        transition: all 0.2s ease;
+    }
+    .btn-outline-beauty:hover {
+        background: #f4eeff;
+        color: #c142a1;
+        transform: translateY(-2px);
+    }
+</style>
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-success">
-                <div class="card-body">
-                    <h2 class="card-title mb-3 text-success">¡Reserva confirmada!</h2>
-                    <p class="lead">Tu cita se ha registrado correctamente. Puedes enviar una captura de pantalla a tu WhatsApp para guardar los detalles.</p>
-
-                    <div class="mb-4">
-                        <h5>Detalles de la reserva</h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><strong>Nombre:</strong> {{ nombre }}</li>
-                            <li class="list-group-item"><strong>Teléfono:</strong> {{ telefono }}</li>
-                            {% if email %}<li class="list-group-item"><strong>Correo:</strong> {{ email }}</li>{% endif %}
-                            <li class="list-group-item"><strong>Servicio:</strong> {{ servicio.nombre }}</li>
-                            <li class="list-group-item"><strong>Profesional:</strong> {{ profesional.nombres }}</li>
-                            <li class="list-group-item"><strong>Fecha:</strong> {{ fecha }}</li>
-                            <li class="list-group-item"><strong>Hora:</strong> {{ hora }}</li>
-                            <li class="list-group-item"><strong>Observaciones:</strong> {{ observacion or 'Ninguna' }}</li>
-                        </ul>
+        <div class="col-lg-6 col-md-8">
+            <!-- Tarjeta Principal -->
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                
+                <!-- Encabezado con degradado estético -->
+                <div class="bg-beauty-gradient text-white text-center py-5 px-4 position-relative">
+                    <div class="mb-3">
+                        <!-- Ícono de check estilizado -->
+                        <span class="bg-white text-beauty rounded-circle d-inline-flex align-items-center justify-content-center shadow" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                            ✓
+                        </span>
                     </div>
-
-                    <div class="d-grid gap-3">
-                        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success btn-lg">
-                            Enviar confirmación por WhatsApp
-                        </a>
-                        <a href="{{ url_for('landing.inicio') }}" class="btn btn-secondary-custom btn-lg">Volver al inicio</a>
-                    </div>
-
-                    <div class="mt-4 alert alert-info">
-                        <strong>Consejo:</strong> toma una captura de pantalla de esta página y envíala a tu WhatsApp para conservar tu reserva.
-                    </div>
+                    <h2 class="fw-bold mb-1">¡Reserva Confirmada!</h2>
+                    <p class="mb-0 opacity-90">Tu cita se ha registrado correctamente en nuestra agenda.</p>
                 </div>
+
+                <!-- Cuerpo del ticket -->
+                <div class="card-body p-4 p-md-5">
+                    
+                    <!-- Resumen del Cliente -->
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold mb-1 text-dark">{{ nombre }}</h4>
+                        <p class="text-muted small mb-0">
+                            <span class="me-2">📱 {{ telefono }}</span>
+                            {% if email %}<span>✉️ {{ email }}</span>{% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Detalles del Servicio en formato Ticket -->
+                    <div class="ticket-detail p-4 mb-4">
+                        <h5 class="text-uppercase tracking-wider small fw-bold text-muted mb-3 text-center">Resumen del servicio</h5>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-beauty">
+                            <span class="text-muted">Servicio:</span>
+                            <span class="fw-bold text-dark">{{ servicio.nombre }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-beauty">
+                            <span class="text-muted">Especialista:</span>
+                            <span class="fw-bold text-beauty">✨ {{ profesional.nombres }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-beauty">
+                            <span class="text-muted">Fecha:</span>
+                            <span class="fw-bold text-dark">{{ fecha }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-beauty">
+                            <span class="text-muted">Hora:</span>
+                            <span class="badge bg-dark px-3 py-2 fs-6 rounded-3">{{ hora }}</span>
+                        </div>
+
+                        {% if observacion %}
+                        <div class="mt-3">
+                            <span class="text-muted small d-block mb-1">Notas adicionales:</span>
+                            <div class="p-2 bg-white rounded border text-muted small italic">
+                                "{{ observacion }}"
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Mensaje Informativo -->
+                    <div class="alert text-center border-0 p-3 mb-4" style="background-color: #f4eeff; color: #6f42c1; border-radius: 12px;">
+                        <span class="me-1">💬</span> En breve nos pondremos en contacto contigo por **WhatsApp** para recordar tu asistencia.
+                    </div>
+
+                    <!-- Botones de Acción Obligatorios -->
+                    <div class="d-grid gap-3">
+                        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-whatsapp btn-lg rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2">
+                            <span>Enviar confirmación por WhatsApp</span>
+                        </a>
+                        <a href="{{ url_for('landing.inicio') }}" class="btn btn-outline-beauty btn-lg rounded-3 fw-bold">
+                            Volver al inicio
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Pie de página sutil -->
+            <div class="text-center mt-4">
+                <p class="text-muted small">¿Necesitas reprogramar? Contáctanos de inmediato.</p>
             </div>
         </div>
     </div>

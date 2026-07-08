@@ -4,224 +4,432 @@
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="card-title mb-4">Reservar cita</h2>
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <!-- Encabezado Limpio -->
+                    <div class="text-center mb-5">
+                        <h2 class="fw-bold text-dark">Reserva tu Cita</h2>
+                        <p class="text-muted small">Completa los pasos para agendar tu servicio de belleza</p>
+                    </div>
 
-                    <form action="{{ url_for('reservas.nueva') }}" method="post">
+                    <form action="{{ url_for('reservas.nueva') }}" method="post" id="form-reserva">
                         <input type="hidden" id="servicio_id" name="servicio_id" value="{{ servicio_id or '' }}">
-                        <input type="hidden" id="profesional_id" name="profesional_id"
-                            value="{{ profesional_id or '' }}">
+                        <input type="hidden" id="profesional_id" name="profesional_id" value="{{ profesional_id or '' }}">
                         <input type="hidden" id="hora" name="hora" value="{{ hora or '' }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <div class="mb-3">
-                            <label class="form-label">Nombre</label>
-                            <input type="text" name="nombre" class="form-control" value="{{ nombre or '' }}" required>
-                        </div>
 
-
-                        <div class="mb-3">
-                            <label class="form-label">Teléfono</label>
-
-                            <input type="tel" class="form-control" id="telefono" name="telefono" pattern="9[0-9]{8}" value="{{ telefono or '' }}" 
-                                maxlength="9" required>
-
-                            <div class="invalid-feedback">
-                                El teléfono debe tener 9 dígitos y empezar con 9.
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Correo electrónico (opcional)</label>
-                            <input type="email" name="email" class="form-control" value="{{ email or '' }}">
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Servicio</label>
-                            <div id="servicios-container" class="d-flex flex-wrap gap-2">
+                        <!-- SECCIÓN 1: Selección de Servicio -->
+                        <div class="mb-5">
+                            <label class="form-label fw-semibold text-secondary text-uppercase tracking-wider small mb-3">1. Selecciona un Servicio</label>
+                            <div id="servicios-container" class="row g-3">
                                 {% for servicio in servicios %}
-                                <button type="button"
-                                    class="btn btn-outline-primary servicio-btn {% if servicio.id == servicio_id %}active{% endif %}"
-                                    data-servicio="{{ servicio.id }}">
-                                    {{ servicio.nombre }}<br><small>S/ {{ servicio.precio }}</small>
-                                </button>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Profesional</label>
-                            <div id="profesionales-container" class="d-flex flex-wrap gap-2">
-                                {% for profesional in profesionales %}
-                                <button type="button"
-                                    class="btn btn-outline-primary profesional-btn {% if profesional.id == profesional_id %}active{% endif %}"
-                                    data-profesional="{{ profesional.id }}">
-                                    {{ profesional.nombres }}
-                                </button>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Fecha</label>
-                                <input id="fecha" type="date" name="fecha" class="form-control"
-                                    value="{{ fecha or '' }}" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Horario disponible</label>
-                                <div id="horarios-container" class="d-flex flex-wrap gap-2">
-                                    <div class="text-muted">Selecciona servicio, profesional y fecha para ver horarios.
+                                <div class="col-sm-6">
+                                    <div class="card h-100 border-2 custom-selectable-card servicio-btn {% if servicio.id|string == servicio_id|string %}active{% endif %}" 
+                                         data-servicio="{{ servicio.id }}">
+                                        <div class="card-body p-3 d-flex justify-content-between align-items-center" style="pointer-events: none;">
+                                            <div>
+                                                <h6 class="mb-1 fw-bold text-dark">{{ servicio.nombre }}</h6>
+                                                <span class="badge bg-light text-dark border">{{ servicio.duracion_minutos }} min</span>
+                                            </div>
+                                            <span class="fw-bold text-primary fs-5">S/ {{ servicio.precio }}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div id="horarios-mensaje" class="form-text text-muted">Toca un horario para
-                                    seleccionar.</div>
+                                {% endfor %}
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Observaciones</label>
-                            <textarea name="observacion" class="form-control"
-                                rows="3">{{ observacion or '' }}</textarea>
+                        <!-- SECCIÓN 2: Elige tu Especialista -->
+                        <div class="mb-5">
+                            <label class="form-label fw-semibold text-secondary text-uppercase tracking-wider small mb-3">2. Elige tu Especialista</label>
+                            <div id="profesionales-container" class="row g-2">
+                                {% for profesional in profesionales %}
+                                <div class="col-6 col-sm-4">
+                                    <div class="card border-2 text-center p-3 custom-selectable-card profesional-btn {% if profesional.id|string == profesional_id|string %}active{% endif %}" 
+                                         data-profesional="{{ profesional.id }}">
+                                        <div class="card-body p-0 d-flex flex-column align-items-center" style="pointer-events: none;">
+                                            <div class="avatar-placeholder mx-auto mb-2 bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                            <h6 class="mb-0 text-dark small fw-semibold">{{ profesional.nombres }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-main">Confirmar reserva</button>
-                        <a href="{{ url_for('landing.inicio') }}" class="btn btn-secondary-custom ms-2">Volver</a>
+                        <!-- SECCIÓN 3: Fecha y Hora -->
+                        <div class="mb-5 p-4 bg-light rounded-4">
+                            <label class="form-label fw-semibold text-secondary text-uppercase tracking-wider small mb-3">3. Fecha y Horario</label>
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <label class="form-label small text-muted">Fecha del servicio</label>
+                                    <input id="fecha" type="date" name="fecha" class="form-control form-control-lg border-0 shadow-sm" value="{{ fecha or '' }}" required>
+                                </div>
+                                <div class="col-md-7">
+                                    <label class="form-label small text-muted">Horas disponibles</label>
+                                    <div id="horarios-container" class="d-flex flex-wrap gap-2 align-content-start">
+                                        <div class="text-muted small py-2">Selecciona servicio, profesional y fecha para ver horarios.</div>
+                                    </div>
+                                    <div id="horarios-mensaje" class="form-text text-muted small mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN 4: Datos del Cliente -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-secondary text-uppercase tracking-wider small mb-3">4. Tus Datos de Contacto</label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <input type="text" name="nombre" class="form-control form-control-lg" placeholder="Nombre completo" value="{{ nombre or '' }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="tel" class="form-control form-control-lg" id="telefono" name="telefono" pattern="9[0-9]{8}" placeholder="Teléfono celular" value="{{ telefono or '' }}" maxlength="9" required>
+                                    <div class="invalid-feedback">Debe empezar con 9 y tener 9 dígitos.</div>
+                                </div>
+                                <div class="col-12">
+                                    <input type="email" name="email" class="form-control form-control-lg" placeholder="Correo electrónico (Opcional)" value="{{ email or '' }}">
+                                </div>
+                                <div class="col-12">
+                                    <textarea name="observacion" class="form-control" rows="2" placeholder="Notas o requerimientos especiales (Opcional)">{{ observacion or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5 pt-3 border-top">
+                            <a href="{{ url_for('landing.inicio') }}" class="btn btn-link text-secondary text-decoration-none me-md-auto py-2">Volver al inicio</a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold shadow-sm">Agendar Cita</button>
+                        </div>
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+    .custom-selectable-card {
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        border-color: #f0f0f0;
+    }
+    .custom-selectable-card:hover {
+        background-color: #ec4899 !important; /* Azul vibrante sólido */
+        border-color: #ec4899 !important;     /* Borde del mismo color */
+        color: #ffffff !important;            /* Texto blanco */
+        border-radius: 12px;                  /* Esquinas redondeadas pronunciadas */
+        transform: none;                      /* Elimina el movimiento hacia arriba */
+    }
+    .custom-selectable-card.active {
+        background: linear-gradient(135deg, #ec4899, #c084fc) !important; /* Degradado rosa/morado */
+        border-color: transparent !important;                             /* Quita el borde rígido */
+        color: #ffffff !important;                                        /* Texto blanco como la imagen */
+        box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3) !important;        /* Sombra difuminada rosa */
+    }
+    .horario-btn {
+        transition: all 0.15s ease;
+        border-radius: 8px;
+    }
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+</style>
+
 <script>
-    const servicioInput = document.getElementById('servicio_id');
-    const profesionalInput = document.getElementById('profesional_id');
-    const horaInput = document.getElementById('hora');
-    const fechaInput = document.getElementById('fecha');
-    const mensaje = document.getElementById('horarios-mensaje');
-    const serviciosContainer = document.getElementById('servicios-container');
-    const profesionalesContainer = document.getElementById('profesionales-container');
-    const horariosContainer = document.getElementById('horarios-container');
 
-    const establecerBotonActivo = (container, selector) => {
-        container.querySelectorAll(selector).forEach(button => {
-            button.classList.remove('active');
-        });
+document.addEventListener("DOMContentLoaded", () => {
+
+    //---------------------------------------------------------
+    // ELEMENTOS
+    //---------------------------------------------------------
+
+    const servicioInput = document.getElementById("servicio_id");
+    const profesionalInput = document.getElementById("profesional_id");
+    const horaInput = document.getElementById("hora");
+    const fechaInput = document.getElementById("fecha");
+
+    const servicios = document.getElementById("servicios-container");
+    const profesionales = document.getElementById("profesionales-container");
+    const horarios = document.getElementById("horarios-container");
+    const mensaje = document.getElementById("horarios-mensaje");
+
+    //---------------------------------------------------------
+    // ESTADO
+    //---------------------------------------------------------
+
+    const state = {
+
+        servicio : servicioInput.value || null,
+
+        profesional : profesionalInput.value || null,
+
+        fecha : fechaInput.value || null,
+
+        hora : horaInput.value || null
+
     };
 
-    const seleccionarServicio = (id) => {
-        servicioInput.value = id;
-        establecerBotonActivo(serviciosContainer, '.servicio-btn');
-        serviciosContainer.querySelector(`[data-servicio='${id}']`)?.classList.add('active');
-        actualizarHorarios();
-    };
+    //---------------------------------------------------------
+    // UTILIDADES
+    //---------------------------------------------------------
 
-    const seleccionarProfesional = (id) => {
-        profesionalInput.value = id;
-        establecerBotonActivo(profesionalesContainer, '.profesional-btn');
-        profesionalesContainer.querySelector(`[data-profesional='${id}']`)?.classList.add('active');
-        actualizarHorarios();
-    };
+    function activar(selector, card){
 
-    const seleccionarHora = (value) => {
-        horaInput.value = value;
-        horariosContainer.querySelectorAll('.horario-btn').forEach(button => {
-            button.classList.remove('btn-primary');
-            button.classList.add('btn-outline-primary');
-        });
-        const button = horariosContainer.querySelector(`[data-hora='${value}']`);
-        if (button) {
-            button.classList.remove('btn-outline-primary');
-            button.classList.add('btn-primary');
+        document
+            .querySelectorAll(selector)
+            .forEach(c=>c.classList.remove("active"));
+
+        if(card){
+
+            card.classList.add("active");
+
         }
-    };
 
-    const actualizarHorarios = () => {
-        const servicioId = servicioInput.value;
-        const profesionalId = profesionalInput.value;
-        const fecha = fechaInput.value;
+    }
 
-        horariosContainer.innerHTML = '';
-        mensaje.textContent = '';
+    function limpiarHorarios(texto="Seleccione servicio, profesional y fecha"){
 
-        if (!servicioId || !profesionalId || !fecha) {
-            horariosContainer.innerHTML = '<div class="text-muted">Selecciona servicio, profesional y fecha para ver horarios.</div>';
+        horarios.innerHTML=
+
+        `<div class="text-muted small py-2">${texto}</div>`;
+
+        mensaje.textContent="";
+
+        horaInput.value="";
+
+        state.hora=null;
+
+    }
+
+    //---------------------------------------------------------
+    // CARGAR HORARIOS
+    //---------------------------------------------------------
+
+    async function cargarHorarios(){
+
+        if(!state.servicio || !state.profesional || !state.fecha){
+
+            limpiarHorarios();
+
             return;
+
         }
 
-        mensaje.textContent = 'Cargando horarios...';
+        horarios.innerHTML=`
 
-        fetch(`{{ url_for('reservas.horarios_disponibles') }}?profesional_id=${profesionalId}&servicio_id=${servicioId}&fecha=${fecha}`)
-            .then(response => response.json())
-            .then(data => {
-                horariosContainer.innerHTML = '';
-                if (data.horarios && data.horarios.length) {
-                    data.horarios.forEach(slot => {
-                        const button = document.createElement('button');
-                        button.type = 'button';
-                        button.className = 'btn btn-outline-primary horario-btn';
-                        button.dataset.hora = slot;
-                        button.innerText = slot;
-                        button.addEventListener('click', () => {
-                            seleccionarHora(slot);
-                        });
-                        horariosContainer.appendChild(button);
-                    });
-                    mensaje.textContent = 'Toca un horario para seleccionarlo.';
-                    if (horaInput.value) {
-                        seleccionarHora(horaInput.value);
-                    }
-                } else {
-                    horariosContainer.innerHTML = '<div class="text-muted">No hay horarios disponibles para ese día.</div>';
-                    mensaje.textContent = 'Elige otro día o profesional.';
+            <div class="spinner-border spinner-border-sm text-primary"></div>
+
+        `;
+
+        mensaje.textContent="Consultando disponibilidad...";
+
+        try{
+
+            const url =
+            `{{ url_for('reservas.horarios_disponibles') }}?servicio_id=${state.servicio}&profesional_id=${state.profesional}&fecha=${state.fecha}`;
+
+            const response = await fetch(url);
+
+            if(!response.ok){
+
+                throw new Error("No se pudo consultar");
+
+            }
+
+            const data = await response.json();
+
+            horarios.innerHTML="";
+
+            if(data.horarios.length==0){
+
+                limpiarHorarios("No existen horarios disponibles");
+
+                return;
+
+            }
+
+            data.horarios.forEach(hora=>{
+
+                const btn=document.createElement("button");
+
+                btn.type="button";
+
+                btn.className=
+                "btn btn-outline-primary horario-btn";
+
+                btn.innerHTML=hora;
+
+                if(state.hora==hora){
+
+                    btn.classList.replace(
+                        "btn-outline-primary",
+                        "btn-primary"
+                    );
+
                 }
-            })
-            .catch(() => {
-                horariosContainer.innerHTML = '<div class="text-muted">Error cargando horarios.</div>';
-                mensaje.textContent = 'Intenta de nuevo más tarde.';
+
+                btn.onclick=()=>{
+
+                    document
+                    .querySelectorAll(".horario-btn")
+                    .forEach(b=>{
+
+                        b.classList.remove("btn-primary");
+
+                        b.classList.add("btn-outline-primary");
+
+                    });
+
+                    btn.classList.remove("btn-outline-primary");
+
+                    btn.classList.add("btn-primary");
+
+                    state.hora=hora;
+
+                    horaInput.value=hora;
+
+                };
+
+                horarios.appendChild(btn);
+
             });
-    };
 
-    serviciosContainer.querySelectorAll('.servicio-btn').forEach(button => {
-        button.addEventListener('click', () => seleccionarServicio(button.dataset.servicio));
-    });
-    profesionalesContainer.querySelectorAll('.profesional-btn').forEach(button => {
-        button.addEventListener('click', () => seleccionarProfesional(button.dataset.profesional));
-    });
-    fechaInput.addEventListener('change', actualizarHorarios);
-
-    window.addEventListener('load', () => {
-        if (servicioInput.value && profesionalInput.value && fechaInput.value) {
-            actualizarHorarios();
-        }
-    });
-
-   
-    const telefono = document.getElementById("telefono");
-
-    telefono.addEventListener("input", function () {
-
-        // Solo números
-        this.value = this.value.replace(/\D/g, "");
-
-        const regex = /^9\d{8}$/;
-
-        if (regex.test(this.value)) {
-
-            this.classList.remove("is-invalid");
-            this.classList.add("is-valid");
-
-        } else {
-
-            this.classList.remove("is-valid");
-            this.classList.add("is-invalid");
+            mensaje.textContent="Seleccione un horario.";
 
         }
 
+        catch(error){
+
+            console.error(error);
+
+            limpiarHorarios("Error al consultar disponibilidad");
+
+        }
+
+    }
+
+    //---------------------------------------------------------
+    // SERVICIOS
+    //---------------------------------------------------------
+
+    servicios.addEventListener("click",(e)=>{
+
+        const card=e.target.closest(".servicio-btn");
+
+        if(!card) return;
+
+        activar(".servicio-btn",card);
+
+        state.servicio=card.dataset.servicio;
+
+        servicioInput.value=state.servicio;
+
+        // Reiniciar selección
+
+        state.profesional=null;
+
+        profesionalInput.value="";
+
+        state.hora=null;
+
+        horaInput.value="";
+
+        activar(".profesional-btn",null);
+
+        limpiarHorarios("Seleccione un profesional");
+
+        // Aquí luego cargaremos profesionales por AJAX
+
     });
 
+    //---------------------------------------------------------
+    // PROFESIONALES
+    //---------------------------------------------------------
+
+    profesionales.addEventListener("click",(e)=>{
+
+        const card=e.target.closest(".profesional-btn");
+
+        if(!card) return;
+
+        activar(".profesional-btn",card);
+
+        state.profesional=card.dataset.profesional;
+
+        profesionalInput.value=state.profesional;
+
+        state.hora=null;
+
+        horaInput.value="";
+
+        cargarHorarios();
+
+    });
+
+    //---------------------------------------------------------
+    // FECHA
+    //---------------------------------------------------------
+
+    fechaInput.addEventListener("change",()=>{
+
+        state.fecha=fechaInput.value;
+
+        state.hora=null;
+
+        horaInput.value="";
+
+        cargarHorarios();
+
+    });
+
+    //---------------------------------------------------------
+    // INICIAL
+    //---------------------------------------------------------
+
+    if(state.servicio){
+
+        const card=document.querySelector(
+
+            `.servicio-btn[data-servicio="${state.servicio}"]`
+
+        );
+
+        if(card){
+
+            card.classList.add("active");
+
+        }
+
+    }
+
+    if(state.profesional){
+
+        const card=document.querySelector(
+
+            `.profesional-btn[data-profesional="${state.profesional}"]`
+
+        );
+
+        if(card){
+
+            card.classList.add("active");
+
+        }
+
+    }
+
+    if(state.servicio && state.profesional && state.fecha){
+
+        cargarHorarios();
+
+    }
+
+});
 </script>
-
-{% endblock %}
+                
+    {% endblock %}

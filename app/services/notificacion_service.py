@@ -50,22 +50,16 @@ Muchas gracias por confiar en nosotros. En breve nos estaremos poniendo en conta
 
 👤 Cliente:
 {cita.cliente_nombre}
-
 📱 Teléfono:
 {cita.cliente_telefono}
-
 💇 Servicio:
 {cita.servicio.nombre}
-
 👩 Profesional:
 {cita.profesional.nombres}
-
 📅 Fecha:
 {cita.fecha_inicio_lima.strftime('%d/%m/%Y')}
-
 🕒 Hora:
 {cita.fecha_inicio_lima.strftime('%H:%M')}
-
 📝 Observación:
 {cita.observacion or 'Ninguna'}
 """

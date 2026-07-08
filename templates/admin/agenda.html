@@ -46,7 +46,7 @@
             {% set cls = 'btn-secondary' %}
             {% if s.estado  == 'available' %}
               {% set cls = 'btn-success' %}
-            {% elif s.status == 'booked' %}
+            {% elif s.estado == 'booked' %}
               {% set cls = 'btn-warning text-dark' %}
             {% elif s.estado  == 'blocked' %}
               {% set cls = 'btn-danger' %}

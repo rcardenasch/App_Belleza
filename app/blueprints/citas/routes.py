@@ -35,7 +35,8 @@ UTC = ZoneInfo("UTC")
 
 @reservas_bp.route("/", methods=["GET", "POST"])
 def nueva():
-    servicios = Servicio.query.filter_by(activo=True).all()
+    servicios = Servicio.query.filter_by(activo=True).order_by(Servicio.nombre.asc()).all()
+
     profesionales = Profesional.query.filter_by(activo=True).all()
 
     servicio_id = request.args.get("servicio_id", type=int)
@@ -194,7 +195,6 @@ def nueva():
             f"Fecha: {fecha}\n"
             f"Hora: {hora}\n"
             f"Observaciones: {observacion or 'Ninguna'}\n\n"
-            f"Puedes tomar una captura de pantalla y enviarla a tu WhatsApp para guardar esta confirmación."
         )
 
         whatsapp_url = generar_link_whatsapp(None, whatsapp_text)

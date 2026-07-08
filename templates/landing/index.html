@@ -1,268 +1,277 @@
 {% extends 'base.html' %}
-{% block title %}Beauty Studio - Landing Page{% endblock %}
+{% block title %}JI - Lashista{% endblock %}
 {% block extra_head %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<!-- Estilos CSS específicos para el comportamiento interactivo (Añadir a tus estilos) -->
 <style>
-
+    .transition-card {
+        transition: all 0.3s ease-in-out;
+    }
+    .transition-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(111, 66, 193, 0.08) !important;
+        border-color: #c142a1 !important;
+    }
 </style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
-<div class="container">
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+        <div class="container">
 
-  <a class="navbar-brand d-flex align-items-center fw-bold" href="#">
-    <!-- Imagen del logo con tamaño reducido y margen a la derecha -->
-    <img 
-      src="https://res.cloudinary.com/cqd1s2cv/image/upload/v1783048425/logo_rkrd0f.png" 
-      alt="Logo Jessenia Ilich" 
-      class="me-2" 
-      style="height: 40px; width: auto; object-fit: contain;"
-    >
-    <!-- Texto del encabezado -->
-    <span>JI-Lashista & Micropigmentadora</span>
-  </a>
-
-
-<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
-<span class="navbar-toggler-icon"></span>
-</button>
-
-<div class="collapse navbar-collapse" id="menu">
-<ul class="navbar-nav ms-auto">
-<li class="nav-item"><a class="nav-link" href="#servicios">Servicios</a></li>
-<li class="nav-item"><a class="nav-link" href="#resultados">Resultados</a></li>
-<li class="nav-item"><a class="nav-link" href="#profesionales">Especialistas</a></li>
-<li class="nav-item"><a class="nav-link" href="#testimonios">Opiniones</a></li>
-<li class="nav-item ms-2">
-<a class="btn btn-main" href="{{ url_for('reservas.nueva') }}">Reservar</a>
-</li>
-<li class="nav-item ms-2">
-<a class="btn btn-main-2" href="{{ url_for('admin.panel') }}">Admin</a>
-</li>
-</ul>
-</div>
-</div>
-</nav>
-
-<section class="hero">
-<div class="container">
-<div class="row">
-<div class="col-lg-7">
-<h1 class="display-3 fw-bold">Transforma tu Mirada</h1>
-<p class="lead my-4">
-Especialistas en Microblading, Cejas HD, Laminado y Extensiones de Pestañas.
-</p>
-<a href="{{ url_for('reservas.nueva') }}" class="btn btn-main btn-lg">Reservar Ahora</a>
-<a href="#resultados" class="btn btn-outline-light btn-lg ms-2">Ver Resultados</a>
-</div>
-</div>
-</div>
-</section>
-
-<section class="stats py-5">
-<div class="container">
-<div class="row text-center">
-<div class="col-md-3"><h2>5000+</h2><p>Clientas</p></div>
-<div class="col-md-3"><h2>4.9★</h2><p>Calificación</p></div>
-<div class="col-md-3"><h2>8</h2><p>Años de experiencia</p></div>
-<div class="col-md-3"><h2>100%</h2><p>Satisfacción</p></div>
-</div>
-</div>
-</section>
-
-<section id="servicios" class="py-5">
-<div class="container">
-<h2 class="section-title text-center">Servicios Destacados</h2>
-
-<div class="row">
-
-{% for servicio in servicios %}
-
-<div class="col-lg-4">
-
-    <div class="card">
-
-        <img
-            src="{{ servicio.imagen_url }}">
-
-        <div class="card-body">
-
-            <h4>
-                {{ servicio.nombre }}
-            </h4>
-
-            <p>
-                {{ servicio.descripcion }}
-            </p>
-
-            <h5>
-                S/ {{ servicio.precio }}
-            </h5>
-
-            <a
-             href="{{ url_for('reservas.nueva') }}"
-             class="btn btn-dark">
-
-             Reservar
-
+            <a class="navbar-brand d-flex align-items-center fw-bold" href="#">
+                <!-- Imagen del logo con tamaño reducido y margen a la derecha -->
+                <img src="https://res.cloudinary.com/cqd1s2cv/image/upload/v1783048425/logo_rkrd0f.png"
+                    alt="Logo Jessenia Ilich" class="me-2" style="height: 40px; width: auto; object-fit: contain;">
+                <!-- Texto del encabezado -->
+                <span>JI-Lashista & Micropigmentadora</span>
             </a>
 
+
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#servicios">Servicios</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#resultados">Resultados</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#profesionales">Especialistas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#testimonios">Opiniones</a></li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-main" href="{{ url_for('reservas.nueva') }}">Reservar</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-main-2" href="{{ url_for('admin.panel') }}">Admin</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7">
+                    <h1 class="display-3 fw-bold">Transforma tu Mirada</h1>
+                    <p class="lead my-4">
+                        Especialistas en Microblading, Cejas HD, Laminado y Extensiones de Pestañas.
+                    </p>
+                    <a href="{{ url_for('reservas.nueva') }}" class="btn btn-main btn-lg">Reservar Ahora</a>
+                    <a href="#resultados" class="btn btn-outline-light btn-lg ms-2">Ver Resultados</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <h2>5000+</h2>
+                    <p>Clientas</p>
+                </div>
+                <div class="col-md-3">
+                    <h2>4.9★</h2>
+                    <p>Calificación</p>
+                </div>
+                <div class="col-md-3">
+                    <h2>8</h2>
+                    <p>Años de experiencia</p>
+                </div>
+                <div class="col-md-3">
+                    <h2>100%</h2>
+                    <p>Satisfacción</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="servicios" class="py-5">
+        <div class="container">
+            <h2 class="section-title text-center">Servicios Destacados</h2>
+
+            <div class="row">
+
+                {% for servicio in servicios %}
+
+                <div class="col-lg-4">
+
+                    <div class="card">
+
+                        <img src="{{ servicio.imagen_url }}">
+
+                        <div class="card-body">
+
+                            <h4>
+                                {{ servicio.nombre }}
+                            </h4>
+
+                            <p>
+                                {{ servicio.descripcion }}
+                            </p>
+
+                            <h5>
+                                S/ {{ servicio.precio }}
+                            </h5>
+
+                            <a href="{{ url_for('reservas.nueva') }}" class="btn btn-dark">
+
+                                Reservar
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+    </section>
+
+    <section id="resultados" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title text-center">Antes y Después</h2>
+            <section id="resultados">
+
+                {% for item in resultados %}
+
+                <div class="before-after">
+
+                    <div>
+
+                        <img src="{{ item.imagen_antes }}">
+                    </div>
+
+                    <div>
+
+                        <img src="{{ item.imagen_despues }}">
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </section>
+
+            <div class="row g-4">
+                <div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?1"></div>
+                <div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?2"></div>
+                <div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?3"></div>
+            </div>
+        </div>
+    </section>
+
+<section id="profesionales" class="py-5" style="background-color: #fdfbfe;">
+    <div class="container">
+        <!-- Título de Sección Estilizado -->
+        <div class="text-center mb-5">
+            <h2 class="section-title fw-bold position-relative d-inline-block" style="color: #c142a1;">
+                Nuestras Especialistas
+            </h2>
+            <p class="text-muted mt-2">Manos expertas dedicadas a resaltar tu belleza natural</p>
         </div>
 
+        <!-- Cuadrícula Corregida (g-4 controla el espacio entre tarjetas) -->
+        <div class="row g-4 justify-content-center">
+            {% for profesional in profesionales %}
+            <div class="col-md-4 col-sm-6">
+                <!-- Tarjeta de Especialista Premium -->
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden text-center p-3 transition-card" 
+                     style="background: #ffffff; border: 1px solid #f4eeff !important;">
+                    
+                    <!-- Contenedor de Imagen Circular Estilizada -->
+                    <div class="position-relative mx-auto my-3" style="width: 140px; height: 140px;">
+                        <img src="{{ profesional.foto_url or url_for('static', filename='img/default-avatar.png') }}" 
+                             alt="{{ profesional.nombres }}"
+                             class="rounded-circle img-fluid w-100 h-100 object-cover border border-3"
+                             style="border-color: #f4eeff !important; object-fit: cover;">
+                        <!-- Pequeño destello decorativo -->
+                        <span class="position-absolute bottom-0 end-0 bg-white rounded-circle shadow-sm p-1" style="font-size: 0.9rem;">✨</span>
+                    </div>
+
+                    <!-- Información de la Especialista -->
+                    <div class="card-body p-2">
+                        <h5 class="fw-bold mb-1 text-dark" style="letter-spacing: -0.02em;">
+                            {{ profesional.nombres }}
+                        </h5>
+                        <p class="text-uppercase tracking-wider small fw-semibold mb-3" style="color: #c142a1; font-size: 0.75rem;">
+                            {{ profesional.especialidad }}
+                        </p>
+                        
+                        <!-- Insignia sutil de Garantía -->
+                        <span class="badge rounded-pill px-3 py-1.5 text-muted fw-normal" style="background-color: #fdfbfe; font-size: 0.75rem; border: 1px solid #f4eeff;">
+                            Profesional Certificada
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-
-</div>
-
-{% endfor %}
-
-</div>
-
 </section>
 
-<section id="resultados" class="py-5 bg-light">
-<div class="container">
-<h2 class="section-title text-center">Antes y Después</h2>
-<section id="resultados">
 
-{% for item in resultados %}
 
-<div class="before-after">
 
-    <div>
+    <section id="testimonios" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title text-center">Lo que dicen nuestras clientas</h2>
+            <div class="row g-4">
 
-        <img
-         src="{{ item.imagen_antes }}">
-    </div>
+                <div class="col-md-4">
+                    <div class="testimonial p-4">
+                        <h5>★★★★★</h5>
+                        <p>Mis cejas quedaron perfectas. Excelente atención.</p>
+                        <strong>María R.</strong>
+                    </div>
+                </div>
 
-    <div>
+                <div class="col-md-4">
+                    <div class="testimonial p-4">
+                        <h5>★★★★★</h5>
+                        <p>Muy profesionales y resultados naturales.</p>
+                        <strong>Andrea P.</strong>
+                    </div>
+                </div>
 
-        <img
-         src="{{ item.imagen_despues }}">
-    </div>
+                <div class="col-md-4">
+                    <div class="testimonial p-4">
+                        <h5>★★★★★</h5>
+                        <p>Definitivamente volveré.</p>
+                        <strong>Carla M.</strong>
+                    </div>
+                </div>
 
-</div>
+            </div>
+        </div>
+    </section>
 
-{% endfor %}
+    <section class="py-5 text-center">
+        <div class="container">
+            <h2 class="fw-bold">¿Lista para Realzar tu Belleza?</h2>
+            <p class="lead">Agenda tu cita en menos de un minuto.</p>
+            <a href="{{ url_for('reservas.nueva') }}" class="btn btn-lg btn-main">
 
-</section>
+                Reservar Ahora
 
-<div class="row g-4">
-<div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?1"></div>
-<div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?2"></div>
-<div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?3"></div>
-</div>
-</div>
-</section>
+            </a>
+        </div>
+    </section>
 
-<section id="profesionales" class="py-5">
-<div class="container">
-<h2 class="section-title text-center">Nuestras Especialistas</h2>
-<div class="row g-4">
+    <footer class="py-4 text-center">
+        <div class="container">
+            <p class="mb-0">© 2026 - Todos los derechos reservados</p>
+        </div>
+    </footer>
 
-<div class="col-md-4">
-<div class="card pro-card">
-<img src="https://picsum.photos/500/500?4">
-<div class="card-body text-center">
-<h5>Ana Gómez</h5>
-<p>Especialista en Microblading</p>
-{% for profesional in profesionales %}
+    <a class="whatsapp" href="https://wa.me/51991041998" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
-<div class="card">
-
-    <img
-      src="{{ profesional.foto_url }}">
-
-    <h5>
-        {{ profesional.nombres }}
-    </h5>
-
-</div>
-
-{% endfor %}
-</div>
-</div>
-</div>
-
-<div class="col-md-4">
-<div class="card pro-card">
-<img src="https://picsum.photos/500/500?5">
-<div class="card-body text-center">
-<h5>María Torres</h5>
-<p>Especialista en Pestañas</p>
-</div>
-</div>
-</div>
-
-<div class="col-md-4">
-<div class="card pro-card">
-<img src="https://picsum.photos/500/500?6">
-<div class="card-body text-center">
-<h5>Lucía Rojas</h5>
-<p>Especialista en Laminado</p>
-</div>
-</div>
-</div>
-
-</div>
-</div>
-</section>
-
-<section id="testimonios" class="py-5 bg-light">
-<div class="container">
-<h2 class="section-title text-center">Lo que dicen nuestras clientas</h2>
-<div class="row g-4">
-
-<div class="col-md-4">
-<div class="testimonial p-4">
-<h5>★★★★★</h5>
-<p>Mis cejas quedaron perfectas. Excelente atención.</p>
-<strong>María R.</strong>
-</div>
-</div>
-
-<div class="col-md-4">
-<div class="testimonial p-4">
-<h5>★★★★★</h5>
-<p>Muy profesionales y resultados naturales.</p>
-<strong>Andrea P.</strong>
-</div>
-</div>
-
-<div class="col-md-4">
-<div class="testimonial p-4">
-<h5>★★★★★</h5>
-<p>Definitivamente volveré.</p>
-<strong>Carla M.</strong>
-</div>
-</div>
-
-</div>
-</div>
-</section>
-
-<section class="py-5 text-center">
-<div class="container">
-<h2 class="fw-bold">¿Lista para Realzar tu Belleza?</h2>
-<p class="lead">Agenda tu cita en menos de un minuto.</p>
-<a
-href="{{ url_for('reservas.nueva') }}"
-class="btn btn-lg btn-main">
-
-Reservar Ahora
-
-</a>
-</div>
-</section>
-
-<footer class="py-4 text-center">
-<div class="container">
-<p class="mb-0">© 2026 - Todos los derechos reservados</p>
-</div>
-</footer>
-
-<a class="whatsapp" href="https://wa.me/51991041998" target="_blank">
-<i class="fab fa-whatsapp"></i>
-</a>
-
-{% endblock %}
+    {% endblock %}
