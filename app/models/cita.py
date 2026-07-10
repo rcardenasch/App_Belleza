@@ -12,12 +12,14 @@ from app.models.reprogramacion import Reprogramacion
 class EstadoCita(enum.Enum):
     PENDIENTE = "Pendiente"
     PENDIENTE_PAGO = "Pendiente Pago"
+    RESERVADA="Reservada"
     CONFIRMADA = "Confirmada"
     EN_CURSO = "En Curso"
     FINALIZADA = "Finalizada"
     CANCELADA = "Cancelada"
     NO_ASISTIO = "No asistió"
     REPROGRAMADA = "Reprogramada"
+    
 
 
 def obtener_ahora_lima():
@@ -60,7 +62,7 @@ class Cita(db.Model):
 
     estado = db.Column(
         db.Enum(EstadoCita),
-        default=EstadoCita.PENDIENTE_PAGO
+        default=EstadoCita.RESERVADA
     )
 
     observacion = db.Column(db.Text)
@@ -75,6 +77,10 @@ class Cita(db.Model):
         default=obtener_ahora_lima,
         onupdate=obtener_ahora_lima
     )
+
+    recordatorio_24h = db.Column(db.Boolean, default=False)
+    recordatorio_12h = db.Column(db.Boolean, default=False)
+    recordatorio_1h = db.Column(db.Boolean, default=False)
 
     # ANTES: back_populates="cita" -> ERROR: Cliente tiene "citas"
     cliente = db.relationship(

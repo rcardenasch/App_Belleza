@@ -12,9 +12,11 @@ import app.models.usuario
 from app.config.cloudinary_config import *
 
 from app.config.settings import Config
+from app.services.scheduler.scheduler import iniciar_scheduler
 
 
 load_dotenv()
+
 
 def create_app():
 
@@ -25,12 +27,12 @@ def create_app():
 
     app.config.from_object(Config)
 
-    print("=" * 50)
-    print("EVOLUTION_URL:", app.config.get("EVOLUTION_URL"))
-    print("EVOLUTION_INSTANCE:", app.config.get("EVOLUTION_INSTANCE"))
-    print("EVOLUTION_TOKEN:", app.config.get("EVOLUTION_TOKEN"))
-    print("WHATSAPP_ADMIN:", app.config.get("WHATSAPP_ADMIN"))
-    print("=" * 50)
+    #print("=" * 50)
+    #print("EVOLUTION_URL:", app.config.get("EVOLUTION_URL"))
+    #print("EVOLUTION_INSTANCE:", app.config.get("EVOLUTION_INSTANCE"))
+    #print("EVOLUTION_TOKEN:", app.config.get("EVOLUTION_TOKEN"))
+    #print("WHATSAPP_ADMIN:", app.config.get("WHATSAPP_ADMIN"))
+    #print("=" * 50)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -46,5 +48,8 @@ def create_app():
     app.register_blueprint(reservas_bp)
     app.register_blueprint(profesionales_bp)
     app.register_blueprint(admin_bp)
+
+    # ← AQUÍ
+    iniciar_scheduler(app)
 
     return app

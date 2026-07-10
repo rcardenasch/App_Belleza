@@ -367,7 +367,14 @@ DROP CONSTRAINT clientes_telefono_key;
 
 ALTER TABLE clientes
 ADD CONSTRAINT uq_cliente_nombre_telefono
-UNIQUE (nombres, telefono);
+UNIQUE (nombres, telefono)
+
+---- citas
+ALTER TABLE citas ADD COLUMN recordatorio_24h BOOLEAN DEFAULT FALSE;
+ALTER TABLE citas ADD COLUMN recordatorio_12h BOOLEAN DEFAULT FALSE;
+ALTER TABLE citas ADD COLUMN recordatorio_1h BOOLEAN DEFAULT FALSE;
+
+
 
 
 

@@ -428,8 +428,8 @@ def eliminar_bloqueo(bloqueo_id):
 import inspect
 @admin_bp.route("/agenda")
 def agenda_admin():
-    print("Archivo AgendaService:")
-    print(inspect.getfile(AgendaService))
+    #print("Archivo AgendaService:")
+    #print(inspect.getfile(AgendaService))
     fecha = request.args.get(
         "fecha",
         datetime.now().date().isoformat()
