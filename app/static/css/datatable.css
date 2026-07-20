@@ -1,0 +1,160 @@
+/* ==========================================================================
+   ESTILO ELEGANTE DE DATATABLES PARA NEGOCIOS DE BELLEZA
+   ========================================================================== */
+
+/* Fuente y base de la tarjeta */
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(177, 130, 118, 0.08) !important;
+    background: #ffffff;
+}
+
+/* Buscador y selector de registros de DataTables */
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #ebdcd8;
+    border-radius: 8px;
+    padding: 6px 12px;
+    background-color: #fdfbfb;
+    color: #4a3e3d;
+    transition: all 0.3s ease;
+}
+
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #b18276;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(177, 130, 118, 0.15);
+    background-color: #ffffff;
+}
+
+/* Encabezado de la tabla */
+.table th {
+    font-family: 'Montserrat', -apple-system, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #4a3e3d !important;
+    background-color: #fbf7f6 !important;
+    border-bottom: 2px solid #ebdcd8 !important;
+    padding: 16px 12px !important;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+/* Filas y celdas */
+.table td {
+    padding: 14px 12px !important;
+    color: #615351;
+    border-bottom: 1px solid #f5edea !important;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+/* Efecto hover suave al pasar el cursor */
+.table-hover tbody tr:hover {
+    background-color: rgba(243, 230, 227, 0.3) !important;
+}
+
+/* Estilo para los Badges (Estados de la cita) */
+.badge {
+    padding: 6px 12px !important;
+    font-weight: 500 !important;
+    border-radius: 30px !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.3px;
+}
+
+/* Personalización de colores de badges orientados a estética */
+.bg-success {
+    background-color: #e2f4ec !important;
+    color: #1e6b43 !important;
+}
+
+.bg-warning {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+}
+
+.bg-danger {
+    background-color: #fbe3e3 !important;
+    color: #a94442 !important;
+}
+
+.bg-info {
+    background-color: #e3f2fd !important;
+    color: #0d47a1 !important;
+}
+
+/* Botones de acción elegantes */
+.btn-outline-warning, .btn-outline-primary {
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-warning {
+    border-color: #b18276;
+    color: #b18276;
+}
+
+.btn-outline-warning:hover {
+    background-color: #b18276;
+    border-color: #b18276;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(177, 130, 118, 0.2);
+}
+
+/* Paginación de DataTables */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #b18276 !important;
+    border-color: #b18276 !important;
+    color: white !important;
+    border-radius: 8px;
+}
+
+.page-link {
+    color: #b18276;
+    border: 1px solid #ebdcd8;
+}
+
+.page-link:hover {
+    color: #ffffff;
+    background-color: #b18276;
+    border-color: #b18276;
+}
+
+.page-item.active .page-link {
+    background-color: #b18276;
+    border-color: #b18276;
+}
+
+/* Ajustes adaptables para Celulares (Scroll elegante) */
+@media (max-width: 768px) {
+    /* Barra de scroll más fina y estética en móviles */
+    .table-responsive::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .table-responsive::-webkit-scrollbar-track {
+        background: #fbf7f6;
+    }
+    
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #ebdcd8;
+        border-radius: 10px;
+    }
+    
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #b18276;
+    }
+
+    /* Reducir ligeramente el relleno en pantallas chicas para optimizar espacio */
+    .table th, .table td {
+        padding: 10px 8px !important;
+        font-size: 0.85rem;
+    }
+}

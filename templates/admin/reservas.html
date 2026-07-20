@@ -103,161 +103,171 @@
     <div class="card shadow-sm">
 
         <div class="card-body">
+            <!-- NUEVO: Contenedor para activar el scroll en móviles -->
+            <div class="table-responsive">
 
-            <table id="tablaReservas" class="table table-hover align-middle datatable">
+                <table id="tablaReservas" class="table table-hover align-middle datatable">
 
-                <thead class="table-light">
+                    <thead class="table-light">
 
-                    <tr>
+                        <tr>
 
-                        <th>ID</th>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Profesional</th>
+                            <th>Estado</th>
+                            <th>Pago</th>
+                            <th>Recordatorio 24h</th>
+                            <th>Recordatorio 1h</th>
+                            <th width="250">
+                                Acciones
+                            </th>
 
-                        <th>Fecha</th>
+                        </tr>
 
-                        <th>Hora</th>
+                    </thead>
 
-                        <th>Cliente</th>
+                    <tbody>
 
-                        <th>Servicio</th>
+                        {% for cita in reservas %}
 
-                        <th>Profesional</th>
+                        <tr>
 
-                        <th>Estado</th>
+                            <td>
 
-                        <th>Pago</th>
+                                {{ cita.id }}
 
-                        <th width="250">
-                            Acciones
-                        </th>
+                            </td>
 
-                    </tr>
+                            <td>
 
-                </thead>
+                                {{ cita.fecha_inicio_lima.strftime("%d/%m/%Y") }}
 
-                <tbody>
+                            </td>
 
-                    {% for cita in reservas %}
+                            <td>
 
-                    <tr>
+                                {{ cita.fecha_inicio_lima.strftime("%H:%M") }}
 
-                        <td>
+                            </td>
 
-                            {{ cita.id }}
+                            <td>
 
-                        </td>
+                                <strong>
 
-                        <td>
+                                    {{ cita.cliente.nombres }}
 
-                            {{ cita.fecha_inicio_lima.strftime("%d/%m/%Y") }}
+                                </strong>
 
-                        </td>
+                            </td>
 
-                        <td>
+                            <td>
 
-                            {{ cita.fecha_inicio_lima.strftime("%H:%M") }}
+                                {{ cita.servicio.nombre }}
 
-                        </td>
+                            </td>
 
-                        <td>
+                            <td>
 
-                            <strong>
+                                {{ cita.profesional.nombres }}
 
-                                {{ cita.cliente.nombres }}
+                            </td>
 
-                            </strong>
+                            <td>
 
-                        </td>
+                                {% if cita.estado.value=="Pendiente Pago" %}
 
-                        <td>
+                                <span class="badge bg-warning text-dark">
 
-                            {{ cita.servicio.nombre }}
+                                    {{ cita.estado.value }}
 
-                        </td>
+                                </span>
 
-                        <td>
+                                {% elif cita.estado.value=="Confirmada" %}
 
-                            {{ cita.profesional.nombres }}
+                                <span class="badge bg-success">
 
-                        </td>
+                                    {{ cita.estado.value }}
 
-                        <td>
+                                </span>
 
-                            {% if cita.estado.value=="Pendiente Pago" %}
+                                {% elif cita.estado.value=="Cancelada" %}
 
-                            <span class="badge bg-warning text-dark">
+                                <span class="badge bg-danger">
 
-                                {{ cita.estado.value }}
+                                    {{ cita.estado.value }}
 
-                            </span>
+                                </span>
 
-                            {% elif cita.estado.value=="Confirmada" %}
+                                {% elif cita.estado.value=="Reprogramada" %}
 
-                            <span class="badge bg-success">
+                                <span class="badge bg-info">
 
-                                {{ cita.estado.value }}
+                                    {{ cita.estado.value }}
 
-                            </span>
+                                </span>
 
-                            {% elif cita.estado.value=="Cancelada" %}
+                                {% elif cita.estado.value=="Finalizada" %}
 
-                            <span class="badge bg-danger">
+                                <span class="badge bg-primary">
 
-                                {{ cita.estado.value }}
+                                    {{ cita.estado.value }}
 
-                            </span>
+                                </span>
 
-                            {% elif cita.estado.value=="Reprogramada" %}
+                                {% else %}
 
-                            <span class="badge bg-info">
+                                <span class="badge bg-secondary">
 
-                                {{ cita.estado.value }}
+                                    {{ cita.estado.value }}
 
-                            </span>
+                                </span>
 
-                            {% elif cita.estado.value=="Finalizada" %}
+                                {% endif %}
 
-                            <span class="badge bg-primary">
+                            </td>
 
-                                {{ cita.estado.value }}
+                            <td>
 
-                            </span>
+                                {% if cita.pagos %}
 
-                            {% else %}
+                                <span class="badge bg-success">
 
-                            <span class="badge bg-secondary">
+                                    Pagado
 
-                                {{ cita.estado.value }}
+                                </span>
 
-                            </span>
+                                {% else %}
 
-                            {% endif %}
+                                <span class="badge bg-danger">
 
-                        </td>
+                                    Pendiente
 
-                        <td>
+                                </span>
 
-                            {% if cita.pagos %}
+                                {% endif %}
 
-                            <span class="badge bg-success">
+                            </td>
+                            <td>
+                                <div class="form-check d-flex justify-content-center">
+                                    <input class="form-check-input" type="checkbox" {% if cita.recordatorio_24h
+                                        %}checked{% endif %} disabled>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check d-flex justify-content-center">
+                                    <input class="form-check-input" type="checkbox" {% if cita.recordatorio_1h
+                                        %}checked{% endif %} disabled>
+                                </div>
+                            </td>
 
-                                Pagado
 
-                            </span>
 
-                            {% else %}
-
-                            <span class="badge bg-danger">
-
-                                Pendiente
-
-                            </span>
-
-                            {% endif %}
-
-                        </td>
-
-                        <td>
-                            <!-- Ver reserva  
+                            <td>
+                                <!-- Ver reserva  
                             <a href="{{ url_for('admin.ver_reserva', cita_id=cita.id) }}"
                                 class="btn btn-sm btn-outline-primary">
 
@@ -266,60 +276,57 @@
                             </a>
                             -->
 
-                            <a href="{{ url_for('admin.reprogramar_reserva', cita_id=cita.id) }}"
-                                class="btn btn-sm btn-outline-warning">
+                                <a href="{{ url_for('admin.reprogramar_reserva', cita_id=cita.id) }}"
+                                    class="btn btn-sm btn-outline-warning">
 
-                                Reprogramar
+                                    Reprogramar
 
-                            </a>
+                                </a>
 
-                            <a href="{{ url_for('admin.confirmar_pago', cita_id=cita.id) }}"
-                                class="btn btn-sm btn-outline-success">
+                                <a href="{{ url_for('admin.confirmar_pago', cita_id=cita.id) }}"
+                                    class="btn btn-sm btn-outline-success">
 
-                                Pago
+                                    Pago
 
-                            </a>
+                                </a>
 
-                            <a target="_blank"
-                                href="https://wa.me/51{{ cita.cliente_telefono }}?text=Hola {{ cita.cliente_nombre }}, respecto a tu cita..."
-                                class="btn btn-sm btn-success">
+                                <a target="_blank"
+                                    href="https://wa.me/51{{ cita.cliente_telefono }}?text=Hola {{ cita.cliente_nombre }}, respecto a tu cita..."
+                                    class="btn btn-sm btn-success">
 
-                                <i class="bi bi-whatsapp"></i>
+                                    <i class="bi bi-whatsapp"></i>
 
-                            </a>
-             
-                            <form method="POST"
-                                action="{{ url_for('admin.cancelar_reserva', cita_id=cita.id) }}"
-                                style="display:inline;">
+                                </a>
 
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <form method="POST" action="{{ url_for('admin.cancelar_reserva', cita_id=cita.id) }}"
+                                    style="display:inline;">
 
-                                <button class="btn btn-sm btn-outline-danger"
-                                    onclick="return confirm('¿Cancelar esta reserva?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-                                    Cancelar Cita
+                                    <button class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('¿Cancelar esta reserva?')">
 
-                                </button>
+                                        Cancelar Cita
+
+                                    </button>
 
                                 </form>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                    {% endfor %}
+                        {% endfor %}
 
-                </tbody>
+                    </tbody>
 
-            </table>
-
+                </table>
+            </div>
         </div>
 
     </div>
 
 </div>
-
-
 
 
 {% endblock %}

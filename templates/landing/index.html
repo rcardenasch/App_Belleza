@@ -7,6 +7,7 @@
     .transition-card {
         transition: all 0.3s ease-in-out;
     }
+
     .transition-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 20px rgba(111, 66, 193, 0.08) !important;
@@ -56,7 +57,7 @@
                 <div class="col-lg-7">
                     <h1 class="display-3 fw-bold">Transforma tu mirada. Luce tus labios y realza tu belleza natural</h1>
                     <p class="lead my-4">
-                        Especialista en  micropigmentacion de cejas, labios,  párpados y extensión de pestañas pelo a pelo
+                        Especialista en micropigmentacion de cejas, labios, párpados y extensión de pestañas pelo a pelo
                     </p>
                     <a href="{{ url_for('reservas.nueva') }}" class="btn btn-main btn-lg">Reservar Cita</a>
                     <a href="#resultados" class="btn btn-outline-light btn-lg ms-2">Ver Resultados</a>
@@ -133,88 +134,101 @@
             </div>
 
     </section>
-
     <section id="resultados" class="py-5 bg-light">
         <div class="container">
-            <h2 class="section-title text-center">Antes y Después</h2>
-            <section id="resultados">
+            <h2 class="section-title text-center mb-5">Antes y Después</h2>
 
+            <div class="row g-4 justify-content-center">
                 {% for item in resultados %}
+                <div class="col-12 col-md-6 mb-4">
+                    <div class="card shadow-sm h-100 d-flex flex-column justify-content-between p-3 bg-white">
+                        <div>
+                            <!-- Imágenes una al lado de la otra -->
+                            <div class="row g-2 mb-3">
+                                <!-- Imagen Antes -->
+                                <div class="col-6 text-center">
+                                    <span class="badge bg-secondary mb-1">Antes</span>
+                                    <img src="{{ item.imagen_antes_url }}" class="img-fluid rounded border" alt="Antes">
+                                </div>
 
-                <div class="before-after">
+                                <!-- Imagen Después -->
+                                <div class="col-6 text-center">
+                                    <span class="badge bg-success mb-1">Después</span>
+                                    <img src="{{ item.imagen_despues_url }}" class="img-fluid rounded border"
+                                        alt="Después">
+                                </div>
+                            </div>
 
-                    <div>
+                            <!-- Nombre del Servicio -->
+                            <h5 class="card-title text-primary mb-2">
+                                <i class="bi bi-star-fill text-warning me-1"></i> {{ item.servicio.nombre }}
+                            </h5>
 
-                        <img src="{{ item.imagen_antes }}">
+                            <!-- Testimonio del Cliente -->
+                            <p class="card-text text-muted fst-italic">
+                                "{{ item.testimonio }}"
+                            </p>
+                        </div>
                     </div>
-
-                    <div>
-
-                        <img src="{{ item.imagen_despues }}">
-                    </div>
-
                 </div>
-
                 {% endfor %}
-
-            </section>
-
-            <div class="row g-4">
-                <div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?1"></div>
-                <div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?2"></div>
-                <div class="col-md-4"><img class="img-fluid rounded-4" src="https://picsum.photos/600/500?3"></div>
             </div>
+
         </div>
     </section>
 
-<section id="profesionales" class="py-5" style="background-color: #fdfbfe;">
-    <div class="container">
-        <!-- Título de Sección Estilizado -->
-        <div class="text-center mb-5">
-            <h2 class="section-title fw-bold position-relative d-inline-block" style="color: #c142a1;">
-                Nuestras Especialistas
-            </h2>
-            <p class="text-muted mt-2">Manos expertas dedicadas a resaltar tu belleza natural</p>
-        </div>
 
-        <!-- Cuadrícula Corregida (g-4 controla el espacio entre tarjetas) -->
-        <div class="row g-4 justify-content-center">
-            {% for profesional in profesionales %}
-            <div class="col-md-4 col-sm-6">
-                <!-- Tarjeta de Especialista Premium -->
-                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden text-center p-3 transition-card" 
-                     style="background: #ffffff; border: 1px solid #f4eeff !important;">
-                    
-                    <!-- Contenedor de Imagen Circular Estilizada -->
-                    <div class="position-relative mx-auto my-3" style="width: 140px; height: 140px;">
-                        <img src="{{ profesional.foto_url or url_for('static', filename='img/default-avatar.png') }}" 
-                             alt="{{ profesional.nombres }}"
-                             class="rounded-circle img-fluid w-100 h-100 object-cover border border-3"
-                             style="border-color: #f4eeff !important; object-fit: cover;">
-                        <!-- Pequeño destello decorativo -->
-                        <span class="position-absolute bottom-0 end-0 bg-white rounded-circle shadow-sm p-1" style="font-size: 0.9rem;">✨</span>
-                    </div>
+    <section id="profesionales" class="py-5" style="background-color: #fdfbfe;">
+        <div class="container">
+            <!-- Título de Sección Estilizado -->
+            <div class="text-center mb-5">
+                <h2 class="section-title fw-bold position-relative d-inline-block" style="color: #c142a1;">
+                    Nuestras Especialistas
+                </h2>
+                <p class="text-muted mt-2">Manos expertas dedicadas a resaltar tu belleza natural</p>
+            </div>
 
-                    <!-- Información de la Especialista -->
-                    <div class="card-body p-2">
-                        <h5 class="fw-bold mb-1 text-dark" style="letter-spacing: -0.02em;">
-                            {{ profesional.nombres }}
-                        </h5>
-                        <p class="text-uppercase tracking-wider small fw-semibold mb-3" style="color: #c142a1; font-size: 0.75rem;">
-                            {{ profesional.especialidad }}
-                        </p>
-                        
-                        <!-- Insignia sutil de Garantía -->
-                        <span class="badge rounded-pill px-3 py-1.5 text-muted fw-normal" style="background-color: #fdfbfe; font-size: 0.75rem; border: 1px solid #f4eeff;">
-                            Profesional Certificada
-                        </span>
+            <!-- Cuadrícula Corregida (g-4 controla el espacio entre tarjetas) -->
+            <div class="row g-4 justify-content-center">
+                {% for profesional in profesionales %}
+                <div class="col-md-4 col-sm-6">
+                    <!-- Tarjeta de Especialista Premium -->
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden text-center p-3 transition-card"
+                        style="background: #ffffff; border: 1px solid #f4eeff !important;">
+
+                        <!-- Contenedor de Imagen Circular Estilizada -->
+                        <div class="position-relative mx-auto my-3" style="width: 140px; height: 140px;">
+                            <img src="{{ profesional.foto_url or url_for('static', filename='img/default-avatar.png') }}"
+                                alt="{{ profesional.nombres }}"
+                                class="rounded-circle img-fluid w-100 h-100 object-cover border border-3"
+                                style="border-color: #f4eeff !important; object-fit: cover;">
+                            <!-- Pequeño destello decorativo -->
+                            <span class="position-absolute bottom-0 end-0 bg-white rounded-circle shadow-sm p-1"
+                                style="font-size: 0.9rem;">✨</span>
+                        </div>
+
+                        <!-- Información de la Especialista -->
+                        <div class="card-body p-2">
+                            <h5 class="fw-bold mb-1 text-dark" style="letter-spacing: -0.02em;">
+                                {{ profesional.nombres }}
+                            </h5>
+                            <p class="text-uppercase tracking-wider small fw-semibold mb-3"
+                                style="color: #c142a1; font-size: 0.75rem;">
+                                {{ profesional.especialidad }}
+                            </p>
+
+                            <!-- Insignia sutil de Garantía -->
+                            <span class="badge rounded-pill px-3 py-1.5 text-muted fw-normal"
+                                style="background-color: #fdfbfe; font-size: 0.75rem; border: 1px solid #f4eeff;">
+                                Profesional Certificada
+                            </span>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
-    </div>
-</section>
+    </section>
 
 
 

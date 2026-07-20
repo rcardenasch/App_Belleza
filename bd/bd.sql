@@ -374,6 +374,8 @@ ALTER TABLE citas ADD COLUMN recordatorio_24h BOOLEAN DEFAULT FALSE;
 ALTER TABLE citas ADD COLUMN recordatorio_12h BOOLEAN DEFAULT FALSE;
 ALTER TABLE citas ADD COLUMN recordatorio_1h BOOLEAN DEFAULT FALSE;
 
+select * from citas order by 1 desc;
+
 
 
 

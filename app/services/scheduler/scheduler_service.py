@@ -58,19 +58,19 @@ class SchedulerService:
                     cita.recordatorio_24h = True
                     cambios = True
 
-            # ------------------ 12 HORAS ------------------
+            # ------------------ 12 HORAS Inhabilitado ------------------
 
-            elif (
-                timedelta(hours=11, minutes=55)
-                <= restante
-                <= timedelta(hours=12, minutes=5)
-                and not cita.recordatorio_12h
-            ):
+            #elif (
+            #    timedelta(hours=11, minutes=55)
+            #    <= restante
+            #    <= timedelta(hours=12, minutes=5)
+            #    and not cita.recordatorio_12h
+            #):
 
-                if NotificacionService.enviar_recordatorio_12hrs(cita):
+            #    if NotificacionService.enviar_recordatorio_12hrs(cita):
 
-                    cita.recordatorio_12h = True
-                    cambios = True
+            #        cita.recordatorio_12h = True
+            #        cambios = True
 
             # ------------------ 1 HORA ------------------
 
