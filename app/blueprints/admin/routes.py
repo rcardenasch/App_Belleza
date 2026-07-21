@@ -1110,3 +1110,35 @@ def confirmar_pago(cita_id):
         url_for("admin.reservas_admin")
     )
 
+
+@admin_bp.route("/crear-admin")
+def crear_admin():
+
+    usuario = Usuario.query.filter_by(username="admin").first()
+
+    if usuario is None:
+
+        usuario = Usuario(
+            username="admin",
+            rol="admin",
+            activo=True
+        )
+
+        usuario.set_password("43737510")
+
+        db.session.add(usuario)
+
+        mensaje = "Administrador creado."
+
+    else:
+
+        usuario.set_password("43737510")
+
+        mensaje = "Contraseña del administrador actualizada."
+
+    db.session.commit()
+
+    return {
+        "success": True,
+        "mensaje": mensaje
+    }
